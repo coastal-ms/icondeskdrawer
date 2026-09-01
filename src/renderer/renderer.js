@@ -11,6 +11,8 @@ let suppressNextClick = false;
 let windowDragPointer = null;
 let itemPointerDrag = null;
 let highlightedGap = null;
+let windowDragFrame = null;
+let dragPreviewFrame = null;
 
 function itemLabel(item, index) {
   return item
@@ -264,7 +266,12 @@ document.addEventListener("pointermove", (event) => {
     }
 
     if (itemPointerDrag.active) {
-      window.drawerApi.moveDragPreview();
+      if (!dragPreviewFrame) {
+        dragPreviewFrame = window.requestAnimationFrame(() => {
+          dragPreviewFrame = null;
+          window.drawerApi.moveDragPreview();
+        });
+      }
       clearInternalDropHighlight();
       highlightedGap = document
         .elementFromPoint(event.clientX, event.clientY)
@@ -275,7 +282,12 @@ document.addEventListener("pointermove", (event) => {
   }
 
   if (event.pointerId !== windowDragPointer) return;
-  window.drawerApi.moveWindowDrag();
+  if (!windowDragFrame) {
+    windowDragFrame = window.requestAnimationFrame(() => {
+      windowDragFrame = null;
+      window.drawerApi.moveWindowDrag();
+    });
+  }
 });
 
 async function endItemPointerDrag(event) {
@@ -284,6 +296,8 @@ async function endItemPointerDrag(event) {
   const drag = itemPointerDrag;
   itemPointerDrag = null;
   drag.slot.classList.remove("is-dragging");
+  window.cancelAnimationFrame(dragPreviewFrame);
+  dragPreviewFrame = null;
   window.drawerApi.hideDragPreview();
   clearInternalDropHighlight();
 
@@ -338,6 +352,8 @@ function cancelItemPointerDrag(event) {
   itemPointerDrag = null;
   internalDragIndex = null;
   suppressNextClick = false;
+  window.cancelAnimationFrame(dragPreviewFrame);
+  dragPreviewFrame = null;
   clearInternalDropHighlight();
   window.drawerApi.hideDragPreview();
 }
@@ -345,6 +361,9 @@ function cancelItemPointerDrag(event) {
 function endWindowDrag(event) {
   if (event.pointerId !== windowDragPointer) return;
   windowDragPointer = null;
+  window.cancelAnimationFrame(windowDragFrame);
+  windowDragFrame = null;
+  window.drawerApi.moveWindowDrag();
   document.body.classList.remove("is-moving");
   window.drawerApi.endWindowDrag();
   window.setTimeout(() => {

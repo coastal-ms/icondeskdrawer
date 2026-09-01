@@ -563,16 +563,14 @@ function moveWindowDrag() {
     return;
   }
 
-  mainWindow.setBounds({
-    x: Math.round(
+  mainWindow.setPosition(
+    Math.round(
       windowDragStart.bounds.x + pointer.x - windowDragStart.pointer.x,
     ),
-    y: Math.round(
+    Math.round(
       windowDragStart.bounds.y + pointer.y - windowDragStart.pointer.y,
     ),
-    width: windowDragStart.bounds.width,
-    height: windowDragStart.bounds.height,
-  });
+  );
 }
 
 function createTray() {
