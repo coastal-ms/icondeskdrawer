@@ -243,7 +243,7 @@ document.addEventListener("pointerdown", (event) => {
   suppressNextClick = true;
   event.target.setPointerCapture?.(event.pointerId);
   document.body.classList.add("is-moving");
-  window.drawerApi.beginWindowDrag({ x: event.screenX, y: event.screenY });
+  window.drawerApi.beginWindowDrag();
 });
 
 document.addEventListener("pointermove", (event) => {
@@ -259,18 +259,12 @@ document.addEventListener("pointermove", (event) => {
       internalDragIndex = itemPointerDrag.index;
       suppressNextClick = true;
       itemPointerDrag.slot.classList.add("is-dragging");
-      window.drawerApi.showDragPreview(itemPointerDrag.item.icon, {
-        x: event.clientX,
-        y: event.clientY,
-      });
+      window.drawerApi.showDragPreview(itemPointerDrag.item.icon);
       setStatus("Drop on a key or gap to move, or outside to remove.");
     }
 
     if (itemPointerDrag.active) {
-      window.drawerApi.moveDragPreview({
-        x: event.clientX,
-        y: event.clientY,
-      });
+      window.drawerApi.moveDragPreview();
       clearInternalDropHighlight();
       highlightedGap = document
         .elementFromPoint(event.clientX, event.clientY)
@@ -281,7 +275,7 @@ document.addEventListener("pointermove", (event) => {
   }
 
   if (event.pointerId !== windowDragPointer) return;
-  window.drawerApi.moveWindowDrag({ x: event.screenX, y: event.screenY });
+  window.drawerApi.moveWindowDrag();
 });
 
 async function endItemPointerDrag(event) {

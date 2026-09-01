@@ -17,6 +17,8 @@ const execFileAsync = promisify(execFile);
 
 let mainWindow;
 let dragPreviewWindow;
+let dragPreviewMovePending = false;
+let dragPreviewMoveTimer = null;
 let tray;
 let stateFile;
 let windowStateFile;
@@ -387,26 +389,42 @@ function createDragPreviewWindow() {
   );
 }
 
-function positionDragPreview(point) {
+function positionDragPreview() {
+  const pointer = screen.getCursorScreenPoint();
   if (
     !dragPreviewWindow ||
     dragPreviewWindow.isDestroyed() ||
-    !mainWindow ||
-    mainWindow.isDestroyed() ||
-    !Number.isFinite(point?.x) ||
-    !Number.isFinite(point?.y)
+    !pointer
   ) {
     return;
   }
 
-  const drawerBounds = mainWindow.getBounds();
   dragPreviewWindow.setPosition(
-    Math.round(drawerBounds.x + point.x - 26),
-    Math.round(drawerBounds.y + point.y - 26),
+    Math.round(pointer.x - 26),
+    Math.round(pointer.y - 26),
   );
 }
 
-async function showDragPreview(icon, point) {
+function queueDragPreviewPosition() {
+  dragPreviewMovePending = true;
+  if (dragPreviewMoveTimer) return;
+
+  dragPreviewMoveTimer = setTimeout(() => {
+    dragPreviewMoveTimer = null;
+    if (!dragPreviewMovePending) return;
+    dragPreviewMovePending = false;
+    positionDragPreview();
+  }, 16);
+}
+
+function hideDragPreview() {
+  clearTimeout(dragPreviewMoveTimer);
+  dragPreviewMoveTimer = null;
+  dragPreviewMovePending = false;
+  dragPreviewWindow?.hide();
+}
+
+async function showDragPreview(icon) {
   if (
     typeof icon !== "string" ||
     !icon.startsWith("data:image/") ||
@@ -422,8 +440,8 @@ async function showDragPreview(icon, point) {
     );
   }
   dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
-  positionDragPreview(point);
-  dragPreviewWindow.show();
+  positionDragPreview();
+  dragPreviewWindow.showInactive();
   dragPreviewWindow.moveTop();
 }
 
@@ -515,13 +533,8 @@ function showDrawerContextMenu() {
   ]).popup({ window: mainWindow });
 }
 
-function beginWindowDrag(point) {
-  const pointer = Number.isFinite(point?.x) && Number.isFinite(point?.y)
-    ? screen.screenToDipPoint({
-        x: Math.round(point.x),
-        y: Math.round(point.y),
-      })
-    : null;
+function beginWindowDrag() {
+  const pointer = screen.getCursorScreenPoint();
   if (
     currentLocked ||
     !mainWindow ||
@@ -538,13 +551,8 @@ function beginWindowDrag(point) {
   };
 }
 
-function moveWindowDrag(point) {
-  const pointer = Number.isFinite(point?.x) && Number.isFinite(point?.y)
-    ? screen.screenToDipPoint({
-        x: Math.round(point.x),
-        y: Math.round(point.y),
-      })
-    : null;
+function moveWindowDrag() {
+  const pointer = screen.getCursorScreenPoint();
   if (
     !windowDragStart ||
     currentLocked ||
@@ -596,20 +604,20 @@ app.whenReady().then(() => {
     if (message) throw new Error(message);
   });
   ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
-  ipcMain.on("window:drag-begin", (_event, point) => beginWindowDrag(point));
-  ipcMain.on("window:drag-move", (_event, point) => moveWindowDrag(point));
+  ipcMain.on("window:drag-begin", beginWindowDrag);
+  ipcMain.on("window:drag-move", moveWindowDrag);
   ipcMain.on("window:drag-end", () => {
     windowDragStart = null;
     fitWindowToSlots(currentSlotCount);
   });
-  ipcMain.on("drag-preview:show", (_event, icon, point) => {
-    showDragPreview(icon, point);
+  ipcMain.on("drag-preview:show", (_event, icon) => {
+    showDragPreview(icon);
   });
-  ipcMain.on("drag-preview:move", (_event, point) => {
-    positionDragPreview(point);
+  ipcMain.on("drag-preview:move", () => {
+    queueDragPreviewPosition();
   });
   ipcMain.on("drag-preview:hide", () => {
-    dragPreviewWindow?.hide();
+    hideDragPreview();
   });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,

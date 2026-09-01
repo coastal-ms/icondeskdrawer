@@ -14,11 +14,10 @@ contextBridge.exposeInMainWorld("drawerApi", {
     );
   },
   showContextMenu: () => ipcRenderer.invoke("window:show-context-menu"),
-  beginWindowDrag: (point) => ipcRenderer.send("window:drag-begin", point),
-  moveWindowDrag: (point) => ipcRenderer.send("window:drag-move", point),
+  beginWindowDrag: () => ipcRenderer.send("window:drag-begin"),
+  moveWindowDrag: () => ipcRenderer.send("window:drag-move"),
   endWindowDrag: () => ipcRenderer.send("window:drag-end"),
-  showDragPreview: (icon, point) =>
-    ipcRenderer.send("drag-preview:show", icon, point),
-  moveDragPreview: (point) => ipcRenderer.send("drag-preview:move", point),
+  showDragPreview: (icon) => ipcRenderer.send("drag-preview:show", icon),
+  moveDragPreview: () => ipcRenderer.send("drag-preview:move"),
   hideDragPreview: () => ipcRenderer.send("drag-preview:hide"),
 });
