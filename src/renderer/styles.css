@@ -5,7 +5,7 @@
   --text: #eaf3f8;
   --muted: #91a2ad;
   --well: #070b0e;
-  --key-size: 78px;
+  --key-size: 64px;
   --key-gap: 14px;
   --edge-drop: var(--key-gap);
   --edge-space: 0;
@@ -32,7 +32,7 @@ button {
 .drawer-shell {
   position: relative;
   display: grid;
-  grid-template-rows: 18px minmax(86px, 1fr);
+  grid-template-rows: 18px minmax(72px, 1fr);
   width: calc(100% - 4px);
   height: calc(100% - 4px);
   margin: 2px;
@@ -199,9 +199,10 @@ button {
 }
 
 .item-icon {
-  width: 100%;
-  height: 100%;
+  width: 68%;
+  height: 68%;
   object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 65%));
   pointer-events: none;
 }
 

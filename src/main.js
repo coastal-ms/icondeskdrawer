@@ -27,9 +27,9 @@ let currentSlotCount = 3;
 let isQuitting = false;
 const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
-const SLOT_STEP = 92;
-const HORIZONTAL_BASE_WIDTH = 296;
-const VERTICAL_BASE_HEIGHT = 314;
+const SLOT_STEP = 78;
+const HORIZONTAL_BASE_WIDTH = 254;
+const VERTICAL_BASE_HEIGHT = 272;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +118,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 86 : 296, vertical ? 314 : 106);
-  mainWindow.setMaximumSize(vertical ? 86 : 10000, vertical ? 10000 : 130);
+  mainWindow.setMinimumSize(vertical ? 72 : 254, vertical ? 272 : 92);
+  mainWindow.setMaximumSize(vertical ? 72 : 10000, vertical ? 10000 : 116);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
-      vertical ? 86 : Math.max(296, height),
-      vertical ? Math.max(314, width) : Math.min(110, width),
+      vertical ? 72 : Math.max(254, height),
+      vertical ? Math.max(272, width) : Math.min(96, width),
       true,
     );
   }
@@ -289,14 +289,14 @@ function createWindow(windowState) {
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 86 : 296),
-    height: windowState.bounds?.height || (vertical ? 314 : 110),
+    width: windowState.bounds?.width || (vertical ? 72 : 254),
+    height: windowState.bounds?.height || (vertical ? 272 : 96),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 86 : 296,
-    minHeight: vertical ? 314 : 106,
-    maxWidth: vertical ? 86 : undefined,
-    maxHeight: vertical ? undefined : 130,
+    minWidth: vertical ? 72 : 254,
+    minHeight: vertical ? 272 : 92,
+    maxWidth: vertical ? 72 : undefined,
+    maxHeight: vertical ? undefined : 116,
     frame: false,
     transparent: true,
     resizable: false,

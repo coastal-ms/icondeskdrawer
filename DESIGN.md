@@ -31,7 +31,7 @@ components:
   launcher-key:
     backgroundColor: "{colors.deep-well}"
     rounded: "{rounded.key}"
-    size: "78px"
+    size: "64px"
   window-control:
     textColor: "{colors.muted-steel}"
     rounded: "{rounded.control}"
@@ -81,7 +81,7 @@ The palette is restrained graphite with one electrical status color.
 
 ## Layout
 
-The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes, with matching end targets and no additional content padding. Horizontal and vertical modes preserve the same key size and centered justification.
+The drawer uses a single centered key track. Keys are 64px squares separated by 14px insertion lanes, with matching end targets and no additional content padding. Horizontal and vertical modes preserve the same key size and centered justification.
 
 ## Elevation & Depth
 
@@ -113,9 +113,9 @@ The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility co
 - **Rail:** An 18px draggable top strip; status text remains accessible but does not create a bottom bezel.
 
 ### Launcher Key
-- **Shape:** Fixed 78px square with a recessed 10px face.
+- **Shape:** Fixed 64px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
-- **Occupied:** The native Windows icon uses the full key face as its fitting area while preserving its complete aspect ratio without cropping.
+- **Occupied:** The native Windows icon fits proportionally within 68% of the key face, matching familiar Windows icon scale without stretching.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.
 
