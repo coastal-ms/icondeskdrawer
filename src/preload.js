@@ -14,4 +14,7 @@ contextBridge.exposeInMainWorld("drawerApi", {
     );
   },
   showContextMenu: () => ipcRenderer.invoke("window:show-context-menu"),
+  beginWindowDrag: (point) => ipcRenderer.send("window:drag-begin", point),
+  moveWindowDrag: (point) => ipcRenderer.send("window:drag-move", point),
+  endWindowDrag: () => ipcRenderer.send("window:drag-end"),
 });

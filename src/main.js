@@ -25,6 +25,7 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let isQuitting = false;
+let windowDragStart = null;
 const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
 const SLOT_STEP = 78;
@@ -436,6 +437,46 @@ function showDrawerContextMenu() {
   ]).popup({ window: mainWindow });
 }
 
+function beginWindowDrag(point) {
+  if (
+    currentLocked ||
+    !mainWindow ||
+    mainWindow.isDestroyed() ||
+    !Number.isFinite(point?.x) ||
+    !Number.isFinite(point?.y)
+  ) {
+    windowDragStart = null;
+    return;
+  }
+
+  windowDragStart = {
+    pointer: point,
+    bounds: mainWindow.getBounds(),
+  };
+}
+
+function moveWindowDrag(point) {
+  if (
+    !windowDragStart ||
+    currentLocked ||
+    !mainWindow ||
+    mainWindow.isDestroyed() ||
+    !Number.isFinite(point?.x) ||
+    !Number.isFinite(point?.y)
+  ) {
+    return;
+  }
+
+  mainWindow.setPosition(
+    Math.round(
+      windowDragStart.bounds.x + point.x - windowDragStart.pointer.x,
+    ),
+    Math.round(
+      windowDragStart.bounds.y + point.y - windowDragStart.pointer.y,
+    ),
+  );
+}
+
 function createTray() {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "assets", "icon.png")
@@ -465,6 +506,11 @@ app.whenReady().then(() => {
     if (message) throw new Error(message);
   });
   ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
+  ipcMain.on("window:drag-begin", (_event, point) => beginWindowDrag(point));
+  ipcMain.on("window:drag-move", (_event, point) => moveWindowDrag(point));
+  ipcMain.on("window:drag-end", () => {
+    windowDragStart = null;
+  });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
   }));

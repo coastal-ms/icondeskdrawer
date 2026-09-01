@@ -8,6 +8,7 @@ let items = [];
 let gapTimer;
 let internalDragIndex = null;
 let suppressNextClick = false;
+let windowDragPointer = null;
 
 function itemLabel(item, index) {
   return item
@@ -144,7 +145,7 @@ function createSlot(item, index) {
   }
 
   slot.addEventListener("dragstart", (event) => {
-    if (!item) {
+    if (!item || windowDragPointer !== null) {
       event.preventDefault();
       return;
     }
@@ -260,6 +261,34 @@ document.querySelector(".drawer-shell").addEventListener("contextmenu", (event) 
   event.preventDefault();
   window.drawerApi.showContextMenu();
 });
+
+document.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || event.target.closest(".item-icon")) return;
+
+  windowDragPointer = event.pointerId;
+  suppressNextClick = true;
+  event.target.setPointerCapture?.(event.pointerId);
+  document.body.classList.add("is-moving");
+  window.drawerApi.beginWindowDrag({ x: event.screenX, y: event.screenY });
+});
+
+document.addEventListener("pointermove", (event) => {
+  if (event.pointerId !== windowDragPointer) return;
+  window.drawerApi.moveWindowDrag({ x: event.screenX, y: event.screenY });
+});
+
+function endWindowDrag(event) {
+  if (event.pointerId !== windowDragPointer) return;
+  windowDragPointer = null;
+  document.body.classList.remove("is-moving");
+  window.drawerApi.endWindowDrag();
+  window.setTimeout(() => {
+    suppressNextClick = false;
+  }, 0);
+}
+
+document.addEventListener("pointerup", endWindowDrag);
+document.addEventListener("pointercancel", endWindowDrag);
 
 function applyOrientation(orientation) {
   const vertical = orientation === "vertical";

@@ -43,7 +43,11 @@ button {
     0 1px 3px rgb(0 0 0 / 80%),
     inset 0 1px 0 rgb(255 255 255 / 20%),
     inset 0 -1px 0 #020303;
-  -webkit-app-region: drag;
+  cursor: grab;
+}
+
+body.is-moving .drawer-shell {
+  cursor: grabbing;
 }
 
 .drawer {
@@ -77,8 +81,7 @@ button {
   border: 0;
   outline: 0;
   background: transparent;
-  cursor: pointer;
-  -webkit-app-region: no-drag;
+  cursor: grab;
 }
 
 .key-face {
@@ -146,7 +149,7 @@ button {
   height: 68%;
   object-fit: contain;
   filter: drop-shadow(0 3px 3px rgb(0 0 0 / 65%));
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .icon-host {
@@ -202,7 +205,6 @@ button {
   align-self: stretch;
   position: relative;
   transition: flex-basis 240ms cubic-bezier(0.16, 1, 0.3, 1);
-  -webkit-app-region: no-drag;
 }
 
 .gap::before {

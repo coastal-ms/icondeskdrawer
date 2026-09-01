@@ -36,7 +36,7 @@ The drawer lives on the Windows desktop as a compact horizontal utility. Items a
 - Provides tactile press feedback before launching an item.
 - The floating window can be placed anywhere and remembers its position.
 - Users cannot resize the drawer manually; its frame is sized automatically from orientation and key count.
-- Non-key housing drags the drawer; insertion lanes remain dedicated drop targets.
+- Left-dragging any open surface, including empty keys, key edges, and insertion lanes, moves the drawer without interfering with dropped desktop items.
 - The app lives in the Windows notification tray without a taskbar button.
 - Right-clicking empty drawer space can close it; the tray icon opens, hides, or explicitly exits the app.
 - Advanced dock features are intentionally out of scope.

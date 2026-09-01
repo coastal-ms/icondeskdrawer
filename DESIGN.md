@@ -101,7 +101,7 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 
 ### Drawer Housing
 - **Bezel:** A 1px structural edge inside a 2px transparent window inset.
-- **Movement:** The housing outside launcher keys is draggable. Insertion lanes stay interactive for adding keys.
+- **Movement:** Left-dragging any open surface—including empty keys, occupied-key edges, housing, or insertion lanes—moves the drawer. Only direct icon presses launch or rearrange items.
 - **Chrome:** No title or drag rail. Right-clicking empty housing or an empty key opens the native close menu.
 
 ### Launcher Key
