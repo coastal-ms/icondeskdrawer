@@ -26,7 +26,7 @@ rounded:
   shell: "8px"
 spacing:
   key-gap: "14px"
-  edge-space: "4px"
+  edge-space: "0"
 components:
   launcher-key:
     backgroundColor: "{colors.deep-well}"
@@ -81,7 +81,7 @@ The palette is restrained graphite with one electrical status color.
 
 ## Layout
 
-The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes. The shell keeps a 4px content inset, and both end insertion targets use the same 14px width as internal lanes. Horizontal and vertical modes preserve the same key size and centered justification. Overflow scrolls on the active axis.
+The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes, with matching end targets and no additional content padding. Horizontal and vertical modes preserve the same key size and centered justification.
 
 ## Elevation & Depth
 
@@ -115,7 +115,7 @@ The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility co
 ### Launcher Key
 - **Shape:** Fixed 78px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
-- **Occupied:** The native Windows icon fills 68% of the key.
+- **Occupied:** The native Windows icon image fills the full key face.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.
 

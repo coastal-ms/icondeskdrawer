@@ -25,11 +25,11 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let isQuitting = false;
-const WINDOW_LAYOUT_VERSION = 4;
+const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
 const SLOT_STEP = 92;
-const HORIZONTAL_BASE_WIDTH = 302;
-const VERTICAL_BASE_HEIGHT = 322;
+const HORIZONTAL_BASE_WIDTH = 296;
+const VERTICAL_BASE_HEIGHT = 314;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +118,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 96 : 302, vertical ? 322 : 106);
-  mainWindow.setMaximumSize(vertical ? 130 : 10000, vertical ? 10000 : 130);
+  mainWindow.setMinimumSize(vertical ? 86 : 296, vertical ? 314 : 106);
+  mainWindow.setMaximumSize(vertical ? 86 : 10000, vertical ? 10000 : 130);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
-      vertical ? Math.min(104, height) : Math.max(302, height),
-      vertical ? Math.max(322, width) : Math.min(110, width),
+      vertical ? 86 : Math.max(296, height),
+      vertical ? Math.max(314, width) : Math.min(110, width),
       true,
     );
   }
@@ -289,13 +289,13 @@ function createWindow(windowState) {
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 104 : 302),
-    height: windowState.bounds?.height || (vertical ? 322 : 110),
+    width: windowState.bounds?.width || (vertical ? 86 : 296),
+    height: windowState.bounds?.height || (vertical ? 314 : 110),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 96 : 302,
-    minHeight: vertical ? 322 : 106,
-    maxWidth: vertical ? 130 : undefined,
+    minWidth: vertical ? 86 : 296,
+    minHeight: vertical ? 314 : 106,
+    maxWidth: vertical ? 86 : undefined,
     maxHeight: vertical ? undefined : 130,
     frame: false,
     transparent: true,
