@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'"
+    />
+    <title>Icon Desk Drawer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!--
+      THESIS: A desktop drawer made of physical launch keys, refusing the feature-heavy dock dashboard.
+      OWN-WORLD: Graphite metal, recessed wells, silver edges, cool-blue status light, and native app artwork.
+      STORY: Empty keys invite a drop; occupied keys depress and rebound to launch; a held gap grows into capacity.
+      FIRST VIEWPORT: One slim horizontal drawer, three centered keys, a narrow drag rail, and quiet window controls.
+      FORM: Familiar compact dock, explicitly pinned by the user to a restrained Nexus-like launcher.
+    -->
+    <main class="drawer-shell" aria-label="Icon Desk Drawer">
+      <header class="drag-rail">
+        <div class="brand">
+          <span class="status-light" aria-hidden="true"></span>
+          <span>ICON DRAWER</span>
+        </div>
+        <div class="window-actions">
+          <button id="close" type="button" aria-label="Close">×</button>
+        </div>
+      </header>
+
+      <section
+        id="drawer"
+        class="drawer"
+        aria-label="Launcher slots"
+        aria-live="polite"
+      >
+        <div id="drawer-track" class="drawer-track"></div>
+      </section>
+
+      <p id="status" class="status" role="status">
+        Drop an app, shortcut, file, or folder into an empty key.
+      </p>
+    </main>
+
+    <template id="slot-template">
+      <button class="slot" type="button">
+        <span class="key-face">
+          <span class="icon-host"></span>
+          <span class="empty-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+        </span>
+        <span class="reflection" aria-hidden="true"></span>
+      </button>
+    </template>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

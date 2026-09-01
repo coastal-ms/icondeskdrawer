@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T23:13:00-07:00",
+  "title": "Design System: Icon Desk Drawer",
+  "extensions": {
+    "colorMeta": {
+      "electric-blue": {
+        "role": "primary",
+        "displayName": "Electric Signal",
+        "canonical": "#48b8ff",
+        "tonalRamp": ["#06233a", "#0b3b60", "#105687", "#1773ae", "#2392d1", "#48b8ff", "#94d7ff", "#dff4ff"]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite Housing",
+        "canonical": "#171d21",
+        "tonalRamp": ["#080a0c", "#111518", "#1b2227", "#303b42", "#4e5d66", "#788991", "#b4c0c5", "#eef3f5"]
+      },
+      "deep-well": {
+        "role": "neutral",
+        "displayName": "Deep Key Well",
+        "canonical": "#070b0e",
+        "tonalRamp": ["#030405", "#070b0e", "#10171c", "#202c33", "#3c4b53", "#687980", "#aab7bc", "#edf2f4"]
+      }
+    },
+    "typographyMeta": {
+      "label": {
+        "displayName": "Utility Label",
+        "purpose": "Compact drawer identity."
+      },
+      "body": {
+        "displayName": "Status Copy",
+        "purpose": "Single-line interaction guidance."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-shell",
+        "value": "0 10px 24px rgb(0 0 0 / 52%)",
+        "purpose": "Separates the floating drawer from the desktop."
+      },
+      {
+        "name": "raised-key",
+        "value": "0 5px 0 #030405, 0 7px 10px rgb(0 0 0 / 68%)",
+        "purpose": "Creates the key's physical travel."
+      }
+    ],
+    "motion": [
+      {
+        "name": "mechanical-release",
+        "value": "160ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Returns a pressed key to rest."
+      },
+      {
+        "name": "insertion-open",
+        "value": "240ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Expands a held gap into a full key."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Empty Launcher Key",
+      "kind": "button",
+      "refersTo": "launcher-key",
+      "description": "The default drop target.",
+      "html": "<button class=\"ds-key\" aria-label=\"Empty launcher key\"><span></span></button>",
+      "css": ".ds-key{display:grid;place-items:center;width:78px;height:78px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#91a2ad}.ds-key span::before{content:'+';font:300 36px/1 'Segoe UI',sans-serif}.ds-key:hover{border-color:#58666e}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
+    },
+    {
+      "name": "Occupied Launcher Key",
+      "kind": "button",
+      "refersTo": "launcher-key",
+      "description": "A tactile launch control containing native icon art.",
+      "html": "<button class=\"ds-key ds-key-filled\" aria-label=\"Launch application\"><span>APP</span></button>",
+      "css": ".ds-key{display:grid;place-items:center;width:78px;height:78px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#eaf3f8;font:700 11px 'Segoe UI',sans-serif}.ds-key:hover{filter:brightness(1.09)}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
+    },
+    {
+      "name": "Insertion Key",
+      "kind": "custom",
+      "description": "A full-size preview that appears after holding in a gap.",
+      "html": "<div class=\"ds-insertion\" aria-label=\"New key ready\">+</div>",
+      "css": ".ds-insertion{display:grid;place-items:center;width:78px;height:78px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 36px/1 'Segoe UI',sans-serif}"
+    },
+    {
+      "name": "Window Control",
+      "kind": "button",
+      "refersTo": "window-control",
+      "description": "Compact title-rail action.",
+      "html": "<button class=\"ds-control\" aria-label=\"Switch orientation\">▭</button>",
+      "css": ".ds-control{display:grid;place-items:center;width:18px;height:17px;padding:0;border:0;border-radius:4px;background:transparent;color:#91a2ad}.ds-control:hover{background:rgb(255 255 255/.1);color:#fff}.ds-control:focus-visible{outline:2px solid #48b8ff;outline-offset:1px}"
+    },
+    {
+      "name": "Status Label",
+      "kind": "custom",
+      "description": "One-line drawer guidance.",
+      "html": "<p class=\"ds-status\">Drop an app, shortcut, file, or folder into an empty key.</p>",
+      "css": ".ds-status{margin:0;color:#91a2ad;font:400 9px/20px 'Segoe UI',sans-serif;text-align:center;white-space:nowrap}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Desktop Keybank",
+    "overview": "Icon Desk Drawer treats launching software as pressing a compact bank of physical keys. Native Windows icons remain the visual content.",
+    "keyCharacteristics": [
+      "Recessed square launch keys with short mechanical travel.",
+      "One cool-blue signal reserved for readiness and focus.",
+      "Equal spacing and symmetric outer margins.",
+      "Native Windows icon artwork without decorative wrappers."
+    ],
+    "rules": [
+      {
+        "name": "Signal Discipline",
+        "body": "Blue communicates a live state; it is never ambient decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "Mechanical Feedback",
+        "body": "Every launch visibly changes both position and shadow before the target opens.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the 1:2 relationship between inter-key gaps and outer-edge spacing.",
+      "Do keep launch feedback physical, brief, and tied to the opening action.",
+      "Do let native application icons carry visual identity."
+    ],
+    "donts": [
+      "Don't add widgets, skins, ornamental glow, or plugin-style chrome.",
+      "Don't use the blue signal on inactive decoration.",
+      "Don't change key dimensions between horizontal and vertical modes."
+    ]
+  }
+}
