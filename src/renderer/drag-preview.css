@@ -7,14 +7,13 @@ body {
   background: transparent;
 }
 
-body {
-  display: grid;
-  place-items: center;
-}
-
 #drag-preview-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 44px;
   height: 44px;
   object-fit: contain;
   filter: drop-shadow(0 5px 6px rgb(0 0 0 / 80%));
+  will-change: transform;
 }

@@ -17,6 +17,7 @@ const execFileAsync = promisify(execFile);
 
 let mainWindow;
 let dragPreviewWindow;
+let dragPreviewBounds;
 let dragPreviewMovePending = false;
 let dragPreviewMoveTimer = null;
 let tray;
@@ -361,9 +362,24 @@ function createWindow(windowState) {
 }
 
 function createDragPreviewWindow() {
+  const displays = screen.getAllDisplays();
+  const left = Math.min(...displays.map(({ bounds }) => bounds.x));
+  const top = Math.min(...displays.map(({ bounds }) => bounds.y));
+  const right = Math.max(
+    ...displays.map(({ bounds }) => bounds.x + bounds.width),
+  );
+  const bottom = Math.max(
+    ...displays.map(({ bounds }) => bounds.y + bounds.height),
+  );
+  dragPreviewBounds = {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+  };
+
   dragPreviewWindow = new BrowserWindow({
-    width: 52,
-    height: 52,
+    ...dragPreviewBounds,
     frame: false,
     transparent: true,
     resizable: false,
@@ -375,6 +391,7 @@ function createDragPreviewWindow() {
     show: false,
     hasShadow: false,
     alwaysOnTop: true,
+    enableLargerThanScreen: true,
     backgroundColor: "#00000000",
     webPreferences: {
       preload: path.join(__dirname, "drag-preview-preload.js"),
@@ -399,15 +416,16 @@ function positionDragPreview() {
   if (
     !dragPreviewWindow ||
     dragPreviewWindow.isDestroyed() ||
+    !dragPreviewBounds ||
     !pointer
   ) {
     return;
   }
 
-  dragPreviewWindow.setPosition(
-    Math.round(pointer.x - 26),
-    Math.round(pointer.y - 26),
-  );
+  dragPreviewWindow.webContents.send("drag-preview:set-position", {
+    x: Math.round(pointer.x - dragPreviewBounds.x),
+    y: Math.round(pointer.y - dragPreviewBounds.y),
+  });
 }
 
 function queueDragPreviewPosition() {
@@ -449,7 +467,6 @@ async function showDragPreview(icon) {
   dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
   positionDragPreview();
   dragPreviewWindow.showInactive();
-  dragPreviewWindow.moveTop();
 }
 
 function showDrawer() {

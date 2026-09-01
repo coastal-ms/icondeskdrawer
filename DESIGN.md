@@ -108,7 +108,7 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 - **Shape:** Fixed 64px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
 - **Occupied:** The native Windows icon fits proportionally within 68% of the key face, matching familiar Windows icon scale without stretching.
-- **Rearranging:** A full-color 44px preview follows the pointer in a transparent overlay beyond the drawer boundary while the source key dims.
+- **Rearranging:** A full-color 44px preview moves inside a fixed, click-through desktop overlay while the source key dims. The overlay window itself never follows the pointer.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.
 
