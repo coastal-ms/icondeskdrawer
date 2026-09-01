@@ -302,6 +302,8 @@ function createWindow(windowState) {
     frame: false,
     transparent: true,
     resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     alwaysOnTop: currentAlwaysOnTop,
     movable: !currentLocked,
     skipTaskbar: true,
@@ -467,14 +469,16 @@ function moveWindowDrag(point) {
     return;
   }
 
-  mainWindow.setPosition(
-    Math.round(
+  mainWindow.setBounds({
+    x: Math.round(
       windowDragStart.bounds.x + point.x - windowDragStart.pointer.x,
     ),
-    Math.round(
+    y: Math.round(
       windowDragStart.bounds.y + point.y - windowDragStart.pointer.y,
     ),
-  );
+    width: windowDragStart.bounds.width,
+    height: windowDragStart.bounds.height,
+  });
 }
 
 function createTray() {
@@ -510,6 +514,7 @@ app.whenReady().then(() => {
   ipcMain.on("window:drag-move", (_event, point) => moveWindowDrag(point));
   ipcMain.on("window:drag-end", () => {
     windowDragStart = null;
+    fitWindowToSlots(currentSlotCount);
   });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
