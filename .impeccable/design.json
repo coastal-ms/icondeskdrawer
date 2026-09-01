@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-01T00:10:00-07:00",
+  "generatedAt": "2026-09-01T00:44:00-07:00",
   "title": "Design System: Icon Desk Drawer",
   "extensions": {
     "colorMeta": {
@@ -82,6 +82,13 @@
       "description": "A full-size preview that appears after holding in an internal or end gap.",
       "html": "<div class=\"ds-insertion\" aria-label=\"New key ready\">+</div>",
       "css": ".ds-insertion{display:grid;place-items:center;width:64px;height:64px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 32px/1 'Segoe UI',sans-serif}"
+    },
+    {
+      "name": "Icon Drag Preview",
+      "kind": "custom",
+      "description": "A full-color icon preview that follows the pointer while rearranging.",
+      "html": "<img class=\"ds-drag-ghost\" alt=\"\">",
+      "css": ".ds-drag-ghost{width:44px;height:44px;object-fit:contain;opacity:.92;filter:drop-shadow(0 5px 6px rgb(0 0 0/.8));pointer-events:none}"
     },
     {
       "name": "Status Label",

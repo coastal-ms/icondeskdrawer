@@ -38,6 +38,14 @@ function clearInternalDropHighlight() {
   highlightedGap = null;
 }
 
+function positionDragGhost(ghost, event) {
+  ghost.style.transform = `translate3d(${event.clientX - 22}px, ${event.clientY - 22}px, 0)`;
+}
+
+function removeDragGhost(drag) {
+  drag?.ghost?.remove();
+}
+
 function setStatus(message) {
   status.textContent = message;
 }
@@ -259,10 +267,18 @@ document.addEventListener("pointermove", (event) => {
       internalDragIndex = itemPointerDrag.index;
       suppressNextClick = true;
       itemPointerDrag.slot.classList.add("is-dragging");
+      const ghost = document.createElement("img");
+      ghost.className = "drag-ghost";
+      ghost.alt = "";
+      ghost.src = itemPointerDrag.item.icon;
+      document.body.append(ghost);
+      itemPointerDrag.ghost = ghost;
+      positionDragGhost(ghost, event);
       setStatus("Drop on a key or gap to move, or outside to remove.");
     }
 
     if (itemPointerDrag.active) {
+      positionDragGhost(itemPointerDrag.ghost, event);
       clearInternalDropHighlight();
       highlightedGap = document
         .elementFromPoint(event.clientX, event.clientY)
@@ -282,6 +298,7 @@ async function endItemPointerDrag(event) {
   const drag = itemPointerDrag;
   itemPointerDrag = null;
   drag.slot.classList.remove("is-dragging");
+  removeDragGhost(drag);
   clearInternalDropHighlight();
 
   if (!drag.active) return;
@@ -332,6 +349,7 @@ async function endItemPointerDrag(event) {
 function cancelItemPointerDrag(event) {
   if (event.pointerId !== itemPointerDrag?.pointerId) return;
   itemPointerDrag.slot.classList.remove("is-dragging");
+  removeDragGhost(itemPointerDrag);
   itemPointerDrag = null;
   internalDragIndex = null;
   suppressNextClick = false;
