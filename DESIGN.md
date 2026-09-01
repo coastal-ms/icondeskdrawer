@@ -23,10 +23,10 @@ typography:
 rounded:
   control: "4px"
   key: "10px"
-  shell: "13px"
+  shell: "8px"
 spacing:
-  key-gap: "8px"
-  edge-space: "16px"
+  key-gap: "14px"
+  edge-space: "4px"
 components:
   launcher-key:
     backgroundColor: "{colors.deep-well}"
@@ -81,7 +81,7 @@ The palette is restrained graphite with one electrical status color.
 
 ## Layout
 
-The drawer uses a single centered key track. Keys are 78px squares separated by an 8px gap; each outer edge receives 16px, exactly twice the inter-key gap. Horizontal and vertical modes preserve the same key size, spacing ratio, and centered justification. Overflow scrolls on the active axis.
+The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes. The shell keeps a 4px content inset plus narrow 8px insertion targets at both ends. Horizontal and vertical modes preserve the same key size and centered justification. Overflow scrolls on the active axis.
 
 ## Elevation & Depth
 
@@ -96,7 +96,7 @@ Depth is structural. The shell uses an offset ambient shadow; keys use a hard lo
 
 ## Shapes
 
-The shell uses a 13px radius, launch keys use 10px, and utility controls use 4px. Corners are softened enough for desktop friendliness but retain compact tool-like geometry.
+The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility controls use 4px. A 2px transparent inset is the only space between the floating window and its housing.
 
 ## Components
 
@@ -108,6 +108,10 @@ The shell uses a 13px radius, launch keys use 10px, and utility controls use 4px
 - **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, and explicit exit.
 - **Placement:** Configuration stays out of the floating drawer so the keybank remains focused on launching.
 
+### Drawer Housing
+- **Bezel:** A 1px structural edge inside a 2px transparent window inset.
+- **Rail:** An 18px draggable top strip; status text remains accessible but does not create a bottom bezel.
+
 ### Launcher Key
 - **Shape:** Fixed 78px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
@@ -117,12 +121,12 @@ The shell uses a 13px radius, launch keys use 10px, and utility controls use 4px
 
 ### Insertion Key
 
-Holding a dragged item in a gap expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
+Insertion lanes remain faintly visible between keys and at both ends. Holding a dragged item in any lane expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** preserve the 1:2 relationship between inter-key gaps and outer-edge spacing.
+- **Do** keep insertion lanes visibly discoverable without overpowering native icons.
 - **Do** keep launch feedback physical, brief, and tied to the opening action.
 - **Do** let native application icons carry visual identity.
 

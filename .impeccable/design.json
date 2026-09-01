@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T23:13:00-07:00",
+  "generatedAt": "2026-08-31T23:56:00-07:00",
   "title": "Design System: Icon Desk Drawer",
   "extensions": {
     "colorMeta": {
@@ -79,7 +79,7 @@
     {
       "name": "Insertion Key",
       "kind": "custom",
-      "description": "A full-size preview that appears after holding in a gap.",
+      "description": "A full-size preview that appears after holding in an internal or end gap.",
       "html": "<div class=\"ds-insertion\" aria-label=\"New key ready\">+</div>",
       "css": ".ds-insertion{display:grid;place-items:center;width:78px;height:78px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 36px/1 'Segoe UI',sans-serif}"
     },
@@ -89,7 +89,7 @@
       "refersTo": "window-control",
       "description": "Compact title-rail action.",
       "html": "<button class=\"ds-control\" aria-label=\"Switch orientation\">▭</button>",
-      "css": ".ds-control{display:grid;place-items:center;width:18px;height:17px;padding:0;border:0;border-radius:4px;background:transparent;color:#91a2ad}.ds-control:hover{background:rgb(255 255 255/.1);color:#fff}.ds-control:focus-visible{outline:2px solid #48b8ff;outline-offset:1px}"
+      "css": ".ds-control{display:grid;place-items:center;width:16px;height:15px;padding:0;border:0;border-radius:4px;background:transparent;color:#91a2ad}.ds-control:hover{background:rgb(255 255 255/.1);color:#fff}.ds-control:focus-visible{outline:2px solid #48b8ff;outline-offset:1px}"
     },
     {
       "name": "Status Label",
@@ -121,7 +121,7 @@
       }
     ],
     "dos": [
-      "Do preserve the 1:2 relationship between inter-key gaps and outer-edge spacing.",
+      "Do keep insertion lanes visibly discoverable without overpowering native icons.",
       "Do keep launch feedback physical, brief, and tied to the opening action.",
       "Do let native application icons carry visual identity."
     ],
