@@ -1,6 +1,6 @@
 {
   "name": "icon-desk-drawer",
-  "version": "0.1.10",
+  "version": "1.1.0",
   "description": "A lightweight drag-and-drop Windows desktop launcher.",
   "main": "src/main.js",
   "author": "Coastal",
