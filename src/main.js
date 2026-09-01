@@ -333,6 +333,11 @@ function createWindow(windowState) {
   };
   mainWindow.on("move", scheduleBoundsSave);
   mainWindow.on("resize", scheduleBoundsSave);
+  mainWindow.on("will-resize", (event) => event.preventDefault());
+  mainWindow.on("maximize", () => {
+    mainWindow.unmaximize();
+    fitWindowToSlots(currentSlotCount);
+  });
   mainWindow.on("hide", () => dragPreviewWindow?.hide());
   mainWindow.on("close", (event) => {
     if (isQuitting) return;
@@ -422,6 +427,7 @@ function hideDragPreview() {
   dragPreviewMoveTimer = null;
   dragPreviewMovePending = false;
   dragPreviewWindow?.hide();
+  fitWindowToSlots(currentSlotCount);
 }
 
 async function showDragPreview(icon) {
@@ -439,6 +445,7 @@ async function showDragPreview(icon) {
       dragPreviewWindow.webContents.once("did-finish-load", resolve),
     );
   }
+  fitWindowToSlots(currentSlotCount);
   dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
   positionDragPreview();
   dragPreviewWindow.showInactive();
@@ -563,14 +570,16 @@ function moveWindowDrag() {
     return;
   }
 
-  mainWindow.setPosition(
-    Math.round(
+  mainWindow.setBounds({
+    x: Math.round(
       windowDragStart.bounds.x + pointer.x - windowDragStart.pointer.x,
     ),
-    Math.round(
+    y: Math.round(
       windowDragStart.bounds.y + pointer.y - windowDragStart.pointer.y,
     ),
-  );
+    width: windowDragStart.bounds.width,
+    height: windowDragStart.bounds.height,
+  });
 }
 
 function createTray() {
