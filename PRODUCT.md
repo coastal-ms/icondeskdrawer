@@ -34,7 +34,8 @@ The drawer lives on the Windows desktop as a compact horizontal utility. Items a
 - Orientation and always-on-top behavior are controlled from the tray menu, not the drawer window.
 - The tray menu can lock the drawer's desktop position while preserving automatic expansion.
 - Provides tactile press feedback before launching an item.
-- The floating window can be placed anywhere, remembers its position, and remains usable at compact sizes.
+- The floating window can be placed anywhere and remembers its position.
+- Users cannot resize the drawer manually; its frame is sized automatically from orientation and key count.
 - A visible control switches the drawer between horizontal and vertical layouts.
 - The app lives in the Windows notification tray without a taskbar button.
 - Closing the drawer hides it; the tray icon opens, hides, or explicitly exits the app.

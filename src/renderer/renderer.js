@@ -82,9 +82,10 @@ async function assignDrop(event, index, insert) {
   }
 }
 
-function createGap(index) {
+function createGap(index, edge = false) {
   const gap = document.createElement("div");
   gap.className = "gap";
+  gap.classList.toggle("is-edge", edge);
   gap.dataset.index = index;
   gap.setAttribute("aria-hidden", "true");
 
@@ -241,9 +242,10 @@ function createSlot(item, index) {
 function render() {
   drawerTrack.replaceChildren();
 
+  drawerTrack.append(createGap(0, true));
   items.forEach((item, index) => {
-    if (index > 0) drawerTrack.append(createGap(index));
     drawerTrack.append(createSlot(item, index));
+    drawerTrack.append(createGap(index + 1, index === items.length - 1));
   });
 }
 

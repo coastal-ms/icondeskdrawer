@@ -25,11 +25,11 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let isQuitting = false;
-const WINDOW_LAYOUT_VERSION = 2;
+const WINDOW_LAYOUT_VERSION = 4;
 const MINIMUM_SLOT_COUNT = 3;
-const SLOT_STEP = 86;
-const HORIZONTAL_BASE_WIDTH = 296;
-const VERTICAL_BASE_HEIGHT = 320;
+const SLOT_STEP = 92;
+const HORIZONTAL_BASE_WIDTH = 302;
+const VERTICAL_BASE_HEIGHT = 322;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +118,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 118 : 296, vertical ? 320 : 118);
-  mainWindow.setMaximumSize(vertical ? 210 : 10000, vertical ? 10000 : 210);
+  mainWindow.setMinimumSize(vertical ? 96 : 302, vertical ? 322 : 106);
+  mainWindow.setMaximumSize(vertical ? 130 : 10000, vertical ? 10000 : 130);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
-      vertical ? Math.min(180, height) : Math.max(296, height),
-      vertical ? Math.max(320, width) : Math.min(180, width),
+      vertical ? Math.min(104, height) : Math.max(302, height),
+      vertical ? Math.max(322, width) : Math.min(110, width),
       true,
     );
   }
@@ -289,17 +289,17 @@ function createWindow(windowState) {
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 142 : 296),
-    height: windowState.bounds?.height || (vertical ? 320 : 142),
+    width: windowState.bounds?.width || (vertical ? 104 : 302),
+    height: windowState.bounds?.height || (vertical ? 322 : 110),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 118 : 296,
-    minHeight: vertical ? 320 : 118,
-    maxWidth: vertical ? 210 : undefined,
-    maxHeight: vertical ? undefined : 210,
+    minWidth: vertical ? 96 : 302,
+    minHeight: vertical ? 322 : 106,
+    maxWidth: vertical ? 130 : undefined,
+    maxHeight: vertical ? undefined : 130,
     frame: false,
     transparent: true,
-    resizable: true,
+    resizable: false,
     alwaysOnTop: currentAlwaysOnTop,
     movable: !currentLocked,
     skipTaskbar: true,
