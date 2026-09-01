@@ -9,6 +9,8 @@ let gapTimer;
 let internalDragIndex = null;
 let suppressNextClick = false;
 let windowDragPointer = null;
+let itemPointerDrag = null;
+let highlightedGap = null;
 
 function itemLabel(item, index) {
   return item
@@ -29,6 +31,11 @@ function compactSlots() {
 function clearGapTimer() {
   window.clearTimeout(gapTimer);
   gapTimer = undefined;
+}
+
+function clearInternalDropHighlight() {
+  highlightedGap?.classList.remove("is-waiting");
+  highlightedGap = null;
 }
 
 function setStatus(message) {
@@ -141,54 +148,21 @@ function createSlot(item, index) {
     icon.src = item.icon;
     slot.querySelector(".icon-host").append(icon);
     slot.classList.add("has-item");
-    slot.draggable = true;
+
+    icon.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      itemPointerDrag = {
+        pointerId: event.pointerId,
+        index,
+        item,
+        slot,
+        startX: event.screenX,
+        startY: event.screenY,
+        active: false,
+      };
+      icon.setPointerCapture(event.pointerId);
+    });
   }
-
-  slot.addEventListener("dragstart", (event) => {
-    if (!item || windowDragPointer !== null) {
-      event.preventDefault();
-      return;
-    }
-
-    internalDragIndex = index;
-    suppressNextClick = true;
-    slot.classList.add("is-dragging");
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("application/x-icon-drawer-index", String(index));
-    setStatus("Drop on another key to move, or outside the drawer to remove.");
-  });
-
-  slot.addEventListener("dragend", async (event) => {
-    slot.classList.remove("is-dragging");
-    if (internalDragIndex === null) {
-      window.setTimeout(() => {
-        suppressNextClick = false;
-      }, 0);
-      return;
-    }
-
-    const outside =
-      event.screenX < window.screenX ||
-      event.screenX > window.screenX + window.outerWidth ||
-      event.screenY < window.screenY ||
-      event.screenY > window.screenY + window.outerHeight;
-    const removedItem = items[internalDragIndex];
-    internalDragIndex = null;
-
-    if (outside && removedItem) {
-      items[index] = null;
-      compactSlots();
-      await persist();
-      render();
-      setStatus(`${removedItem.name} removed.`);
-    } else {
-      setStatus(`${item.name} kept in the drawer.`);
-    }
-
-    window.setTimeout(() => {
-      suppressNextClick = false;
-    }, 0);
-  });
 
   slot.addEventListener("dragover", (event) => {
     event.preventDefault();
@@ -273,9 +247,96 @@ document.addEventListener("pointerdown", (event) => {
 });
 
 document.addEventListener("pointermove", (event) => {
+  if (event.pointerId === itemPointerDrag?.pointerId) {
+    if (
+      !itemPointerDrag.active &&
+      Math.hypot(
+        event.screenX - itemPointerDrag.startX,
+        event.screenY - itemPointerDrag.startY,
+      ) >= 5
+    ) {
+      itemPointerDrag.active = true;
+      internalDragIndex = itemPointerDrag.index;
+      suppressNextClick = true;
+      itemPointerDrag.slot.classList.add("is-dragging");
+      setStatus("Drop on a key or gap to move, or outside to remove.");
+    }
+
+    if (itemPointerDrag.active) {
+      clearInternalDropHighlight();
+      highlightedGap = document
+        .elementFromPoint(event.clientX, event.clientY)
+        ?.closest(".gap");
+      highlightedGap?.classList.add("is-waiting");
+    }
+    return;
+  }
+
   if (event.pointerId !== windowDragPointer) return;
   window.drawerApi.moveWindowDrag({ x: event.screenX, y: event.screenY });
 });
+
+async function endItemPointerDrag(event) {
+  if (event.pointerId !== itemPointerDrag?.pointerId) return;
+
+  const drag = itemPointerDrag;
+  itemPointerDrag = null;
+  drag.slot.classList.remove("is-dragging");
+  clearInternalDropHighlight();
+
+  if (!drag.active) return;
+
+  const target = document.elementFromPoint(event.clientX, event.clientY);
+  const gap = target?.closest(".gap");
+  const slot = target?.closest(".slot");
+  const outside =
+    event.screenX < window.screenX ||
+    event.screenX > window.screenX + window.outerWidth ||
+    event.screenY < window.screenY ||
+    event.screenY > window.screenY + window.outerHeight;
+
+  if (outside) {
+    items[drag.index] = null;
+    compactSlots();
+    setStatus(`${drag.item.name} removed.`);
+  } else if (gap) {
+    const gapIndex = Number(gap.dataset.index);
+    const [moved] = items.splice(drag.index, 1);
+    const destination = drag.index < gapIndex ? gapIndex - 1 : gapIndex;
+    items.splice(destination, 0, moved);
+    setStatus(`${drag.item.name} moved.`);
+  } else if (slot) {
+    const destination = Number(slot.dataset.index);
+    if (destination !== drag.index) {
+      [items[drag.index], items[destination]] = [
+        items[destination],
+        items[drag.index],
+      ];
+    }
+    setStatus(`${drag.item.name} moved.`);
+  } else {
+    setStatus(`${drag.item.name} kept in the drawer.`);
+    internalDragIndex = null;
+    suppressNextClick = false;
+    return;
+  }
+
+  internalDragIndex = null;
+  await persist();
+  render();
+  window.setTimeout(() => {
+    suppressNextClick = false;
+  }, 0);
+}
+
+function cancelItemPointerDrag(event) {
+  if (event.pointerId !== itemPointerDrag?.pointerId) return;
+  itemPointerDrag.slot.classList.remove("is-dragging");
+  itemPointerDrag = null;
+  internalDragIndex = null;
+  suppressNextClick = false;
+  clearInternalDropHighlight();
+}
 
 function endWindowDrag(event) {
   if (event.pointerId !== windowDragPointer) return;
@@ -289,6 +350,8 @@ function endWindowDrag(event) {
 
 document.addEventListener("pointerup", endWindowDrag);
 document.addEventListener("pointercancel", endWindowDrag);
+document.addEventListener("pointerup", endItemPointerDrag);
+document.addEventListener("pointercancel", cancelItemPointerDrag);
 
 function applyOrientation(orientation) {
   const vertical = orientation === "vertical";

@@ -113,7 +113,7 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 
 ### Insertion Key
 
-Insertion lanes remain faintly visible between keys and at both ends. Holding a dragged item in any lane expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
+Insertion lanes remain faintly visible between keys and at both ends. Existing icons reorder immediately when dropped into a lane. Holding an external desktop item in any lane expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
 
 ## Do's and Don'ts
 

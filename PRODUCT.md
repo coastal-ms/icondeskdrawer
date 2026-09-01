@@ -29,7 +29,7 @@ The drawer lives on the Windows desktop as a compact horizontal utility. Items a
 - Resolves native Windows icons for dropped items.
 - Starts with three empty slots and preserves at least three slots.
 - Adds a slot when a dragged item is held between two existing slots.
-- Occupied keys can be rearranged or dragged outside the drawer to remove them.
+- Occupied keys reorder immediately when dragged onto a key or insertion lane and can be dragged outside the drawer to remove them.
 - The floating window expands and contracts with its key count while preserving its center position.
 - Orientation and always-on-top behavior are controlled from the tray menu, not the drawer window.
 - The tray menu can lock the drawer's desktop position while preserving automatic expansion.
