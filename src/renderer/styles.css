@@ -7,7 +7,7 @@
   --well: #070b0e;
   --key-size: 78px;
   --key-gap: 14px;
-  --edge-drop: 8px;
+  --edge-drop: var(--key-gap);
   --edge-space: 4px;
 }
 

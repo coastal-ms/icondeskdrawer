@@ -25,11 +25,11 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let isQuitting = false;
-const WINDOW_LAYOUT_VERSION = 3;
+const WINDOW_LAYOUT_VERSION = 4;
 const MINIMUM_SLOT_COUNT = 3;
 const SLOT_STEP = 92;
-const HORIZONTAL_BASE_WIDTH = 290;
-const VERTICAL_BASE_HEIGHT = 310;
+const HORIZONTAL_BASE_WIDTH = 302;
+const VERTICAL_BASE_HEIGHT = 322;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +118,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 96 : 290, vertical ? 310 : 106);
+  mainWindow.setMinimumSize(vertical ? 96 : 302, vertical ? 322 : 106);
   mainWindow.setMaximumSize(vertical ? 130 : 10000, vertical ? 10000 : 130);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
-      vertical ? Math.min(104, height) : Math.max(290, height),
-      vertical ? Math.max(310, width) : Math.min(110, width),
+      vertical ? Math.min(104, height) : Math.max(302, height),
+      vertical ? Math.max(322, width) : Math.min(110, width),
       true,
     );
   }
@@ -289,12 +289,12 @@ function createWindow(windowState) {
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 104 : 290),
-    height: windowState.bounds?.height || (vertical ? 310 : 110),
+    width: windowState.bounds?.width || (vertical ? 104 : 302),
+    height: windowState.bounds?.height || (vertical ? 322 : 110),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 96 : 290,
-    minHeight: vertical ? 310 : 106,
+    minWidth: vertical ? 96 : 302,
+    minHeight: vertical ? 322 : 106,
     maxWidth: vertical ? 130 : undefined,
     maxHeight: vertical ? undefined : 130,
     frame: false,

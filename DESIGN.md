@@ -81,7 +81,7 @@ The palette is restrained graphite with one electrical status color.
 
 ## Layout
 
-The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes. The shell keeps a 4px content inset plus narrow 8px insertion targets at both ends. Horizontal and vertical modes preserve the same key size and centered justification. Overflow scrolls on the active axis.
+The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes. The shell keeps a 4px content inset, and both end insertion targets use the same 14px width as internal lanes. Horizontal and vertical modes preserve the same key size and centered justification. Overflow scrolls on the active axis.
 
 ## Elevation & Depth
 
