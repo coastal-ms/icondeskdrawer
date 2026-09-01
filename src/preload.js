@@ -13,5 +13,5 @@ contextBridge.exposeInMainWorld("drawerApi", {
       callback(orientation),
     );
   },
-  close: () => ipcRenderer.invoke("window:close"),
+  showContextMenu: () => ipcRenderer.invoke("window:show-context-menu"),
 });

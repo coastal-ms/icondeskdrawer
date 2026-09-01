@@ -21,7 +21,6 @@ typography:
     fontWeight: 400
     lineHeight: "20px"
 rounded:
-  control: "4px"
   key: "10px"
   shell: "8px"
 spacing:
@@ -32,10 +31,6 @@ components:
     backgroundColor: "{colors.deep-well}"
     rounded: "{rounded.key}"
     size: "64px"
-  window-control:
-    textColor: "{colors.muted-steel}"
-    rounded: "{rounded.control}"
-    size: "18px"
 ---
 
 # Design System: Icon Desk Drawer
@@ -96,13 +91,9 @@ Depth is structural. The shell uses an offset ambient shadow; keys use a hard lo
 
 ## Shapes
 
-The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility controls use 4px. A 2px transparent inset is the only space between the floating window and its housing.
+The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px transparent inset is the only space between the floating window and its housing.
 
 ## Components
-
-### Window Controls
-- **Shape:** Compact 18px controls with a 4px radius.
-- **Hover / Focus:** The hide-to-tray close control brightens and uses a reserved red hover state.
 
 ### Tray Menu
 - **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, and explicit exit.
@@ -110,7 +101,8 @@ The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility co
 
 ### Drawer Housing
 - **Bezel:** A 1px structural edge inside a 2px transparent window inset.
-- **Rail:** An 18px draggable top strip; status text remains accessible but does not create a bottom bezel.
+- **Movement:** The housing outside launcher keys is draggable. Insertion lanes stay interactive for adding keys.
+- **Chrome:** No title or drag rail. Right-clicking empty housing or an empty key opens the native close menu.
 
 ### Launcher Key
 - **Shape:** Fixed 64px square with a recessed 10px face.

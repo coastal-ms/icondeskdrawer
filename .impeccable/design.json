@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-01T00:03:00-07:00",
+  "generatedAt": "2026-09-01T00:10:00-07:00",
   "title": "Design System: Icon Desk Drawer",
   "extensions": {
     "colorMeta": {
@@ -82,14 +82,6 @@
       "description": "A full-size preview that appears after holding in an internal or end gap.",
       "html": "<div class=\"ds-insertion\" aria-label=\"New key ready\">+</div>",
       "css": ".ds-insertion{display:grid;place-items:center;width:64px;height:64px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 32px/1 'Segoe UI',sans-serif}"
-    },
-    {
-      "name": "Window Control",
-      "kind": "button",
-      "refersTo": "window-control",
-      "description": "Compact title-rail action.",
-      "html": "<button class=\"ds-control\" aria-label=\"Switch orientation\">▭</button>",
-      "css": ".ds-control{display:grid;place-items:center;width:16px;height:15px;padding:0;border:0;border-radius:4px;background:transparent;color:#91a2ad}.ds-control:hover{background:rgb(255 255 255/.1);color:#fff}.ds-control:focus-visible{outline:2px solid #48b8ff;outline-offset:1px}"
     },
     {
       "name": "Status Label",

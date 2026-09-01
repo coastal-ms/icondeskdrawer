@@ -29,7 +29,8 @@ const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
 const SLOT_STEP = 78;
 const HORIZONTAL_BASE_WIDTH = 254;
-const VERTICAL_BASE_HEIGHT = 272;
+const HORIZONTAL_HEIGHT = 78;
+const VERTICAL_BASE_HEIGHT = 254;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +119,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 72 : 254, vertical ? 272 : 92);
-  mainWindow.setMaximumSize(vertical ? 72 : 10000, vertical ? 10000 : 116);
+  mainWindow.setMinimumSize(vertical ? 72 : 254, vertical ? 254 : HORIZONTAL_HEIGHT);
+  mainWindow.setMaximumSize(vertical ? 72 : 10000, vertical ? 10000 : HORIZONTAL_HEIGHT);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
       vertical ? 72 : Math.max(254, height),
-      vertical ? Math.max(272, width) : Math.min(96, width),
+      vertical ? Math.max(254, width) : HORIZONTAL_HEIGHT,
       true,
     );
   }
@@ -148,7 +149,7 @@ function fitWindowToSlots(slotCount) {
       );
   const targetHeight = vertical
     ? Math.min(VERTICAL_BASE_HEIGHT + extraSlots * SLOT_STEP, workArea.height - 24)
-    : bounds.height;
+    : HORIZONTAL_HEIGHT;
   const x = vertical || currentLocked
     ? bounds.x
     : Math.round(bounds.x - (targetWidth - bounds.width) / 2);
@@ -290,13 +291,13 @@ function createWindow(windowState) {
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
     width: windowState.bounds?.width || (vertical ? 72 : 254),
-    height: windowState.bounds?.height || (vertical ? 272 : 96),
+    height: windowState.bounds?.height || (vertical ? 254 : HORIZONTAL_HEIGHT),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
     minWidth: vertical ? 72 : 254,
-    minHeight: vertical ? 272 : 92,
+    minHeight: vertical ? 254 : HORIZONTAL_HEIGHT,
     maxWidth: vertical ? 72 : undefined,
-    maxHeight: vertical ? undefined : 116,
+    maxHeight: vertical ? undefined : HORIZONTAL_HEIGHT,
     frame: false,
     transparent: true,
     resizable: false,
@@ -429,6 +430,12 @@ function updateTrayMenu() {
   );
 }
 
+function showDrawerContextMenu() {
+  Menu.buildFromTemplate([
+    { label: "Close drawer", click: () => mainWindow?.hide() },
+  ]).popup({ window: mainWindow });
+}
+
 function createTray() {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "assets", "icon.png")
@@ -457,7 +464,7 @@ app.whenReady().then(() => {
     const message = await shell.openPath(filePath);
     if (message) throw new Error(message);
   });
-  ipcMain.handle("window:close", () => mainWindow?.hide());
+  ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
   }));

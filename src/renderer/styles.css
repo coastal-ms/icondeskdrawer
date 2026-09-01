@@ -31,82 +31,25 @@ button {
 
 .drawer-shell {
   position: relative;
-  display: grid;
-  grid-template-rows: 18px minmax(72px, 1fr);
   width: calc(100% - 4px);
   height: calc(100% - 4px);
   margin: 2px;
   overflow: hidden;
   border: 1px solid #49545a;
   border-radius: 8px;
-  background:
-    linear-gradient(180deg, #333c42 0, #171d21 19px, #0a0e11 100%);
+  background: linear-gradient(180deg, #171d21 0, #0a0e11 100%);
   box-shadow:
     0 6px 16px rgb(0 0 0 / 52%),
     0 1px 3px rgb(0 0 0 / 80%),
     inset 0 1px 0 rgb(255 255 255 / 20%),
     inset 0 -1px 0 #020303;
-}
-
-.drag-rail {
   -webkit-app-region: drag;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 5px 0 8px;
-  border-bottom: 1px solid #050708;
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-shadow: 0 1px 0 #000;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.status-light {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 7px rgb(72 184 255 / 80%);
-}
-
-.window-actions {
-  -webkit-app-region: no-drag;
-  display: flex;
-  gap: 2px;
-}
-
-.window-actions button {
-  display: grid;
-  width: 16px;
-  height: 15px;
-  padding: 0;
-  place-items: center;
-  border: 0;
-  border-radius: 4px;
-  color: #aab7bf;
-  background: transparent;
-  line-height: 1;
-}
-
-.window-actions button:hover {
-  color: white;
-  background: rgb(255 255 255 / 10%);
-}
-
-#close:hover {
-  background: #a93636;
 }
 
 .drawer {
+  height: 100%;
   min-width: 0;
-  padding: 1px var(--edge-space) 0;
+  padding: 0 var(--edge-space);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -337,10 +280,6 @@ button {
   white-space: nowrap;
 }
 
-body.is-vertical .drawer-shell {
-  grid-template-rows: 18px minmax(0, 1fr);
-}
-
 body.is-vertical .drawer {
   padding: 0 1px;
   overflow-x: hidden;
@@ -389,10 +328,6 @@ body.is-vertical .gap.is-armed::after {
 }
 
 body.is-vertical .status {
-  display: none;
-}
-
-body.is-vertical .brand span:last-child {
   display: none;
 }
 

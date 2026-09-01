@@ -228,7 +228,11 @@ function createSlot(item, index) {
 
   slot.addEventListener("contextmenu", async (event) => {
     event.preventDefault();
-    if (!item) return;
+    event.stopPropagation();
+    if (!item) {
+      window.drawerApi.showContextMenu();
+      return;
+    }
     items[index] = null;
     compactSlots();
     await persist();
@@ -252,8 +256,9 @@ function render() {
 document.addEventListener("dragover", (event) => event.preventDefault());
 document.addEventListener("drop", (event) => event.preventDefault());
 document.addEventListener("dragend", clearGapTimer);
-document.querySelector("#close").addEventListener("click", () => {
-  window.drawerApi.close();
+document.querySelector(".drawer-shell").addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+  window.drawerApi.showContextMenu();
 });
 
 function applyOrientation(orientation) {
