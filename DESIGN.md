@@ -115,7 +115,7 @@ The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility co
 ### Launcher Key
 - **Shape:** Fixed 78px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
-- **Occupied:** The native Windows icon image fills the full key face.
+- **Occupied:** The native Windows icon uses the full key face as its fitting area while preserving its complete aspect ratio without cropping.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.
 
