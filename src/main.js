@@ -16,6 +16,7 @@ const { normalizeState } = require("./drawer-state");
 const execFileAsync = promisify(execFile);
 
 let mainWindow;
+let dragPreviewWindow;
 let tray;
 let stateFile;
 let windowStateFile;
@@ -330,6 +331,7 @@ function createWindow(windowState) {
   };
   mainWindow.on("move", scheduleBoundsSave);
   mainWindow.on("resize", scheduleBoundsSave);
+  mainWindow.on("hide", () => dragPreviewWindow?.hide());
   mainWindow.on("close", (event) => {
     if (isQuitting) return;
     event.preventDefault();
@@ -349,6 +351,77 @@ function createWindow(windowState) {
       app.quit();
     }
   });
+}
+
+function createDragPreviewWindow() {
+  dragPreviewWindow = new BrowserWindow({
+    width: 52,
+    height: 52,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    maximizable: false,
+    fullscreenable: false,
+    focusable: false,
+    skipTaskbar: true,
+    show: false,
+    hasShadow: false,
+    alwaysOnTop: true,
+    backgroundColor: "#00000000",
+    webPreferences: {
+      preload: path.join(__dirname, "drag-preview-preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  dragPreviewWindow.setIgnoreMouseEvents(true);
+  dragPreviewWindow.setAlwaysOnTop(true, "floating");
+  dragPreviewWindow.loadFile(
+    path.join(__dirname, "renderer", "drag-preview.html"),
+  );
+  dragPreviewWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  dragPreviewWindow.webContents.on("will-navigate", (event) =>
+    event.preventDefault(),
+  );
+}
+
+function positionDragPreview(point) {
+  if (
+    !dragPreviewWindow ||
+    dragPreviewWindow.isDestroyed() ||
+    !Number.isFinite(point?.x) ||
+    !Number.isFinite(point?.y)
+  ) {
+    return;
+  }
+
+  dragPreviewWindow.setPosition(
+    Math.round(point.x - 26),
+    Math.round(point.y - 26),
+  );
+}
+
+async function showDragPreview(icon, point) {
+  if (
+    typeof icon !== "string" ||
+    !icon.startsWith("data:image/") ||
+    !dragPreviewWindow ||
+    dragPreviewWindow.isDestroyed()
+  ) {
+    return;
+  }
+
+  if (dragPreviewWindow.webContents.isLoading()) {
+    await new Promise((resolve) =>
+      dragPreviewWindow.webContents.once("did-finish-load", resolve),
+    );
+  }
+  dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
+  positionDragPreview(point);
+  dragPreviewWindow.show();
+  dragPreviewWindow.moveTop();
 }
 
 function showDrawer() {
@@ -516,6 +589,15 @@ app.whenReady().then(() => {
     windowDragStart = null;
     fitWindowToSlots(currentSlotCount);
   });
+  ipcMain.on("drag-preview:show", (_event, icon, point) => {
+    showDragPreview(icon, point);
+  });
+  ipcMain.on("drag-preview:move", (_event, point) => {
+    positionDragPreview(point);
+  });
+  ipcMain.on("drag-preview:hide", () => {
+    dragPreviewWindow?.hide();
+  });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
   }));
@@ -529,6 +611,7 @@ app.whenReady().then(() => {
       windowState.bounds = undefined;
     }
     createWindow(windowState);
+    createDragPreviewWindow();
     createTray();
   });
 });

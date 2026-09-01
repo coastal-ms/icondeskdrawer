@@ -17,4 +17,8 @@ contextBridge.exposeInMainWorld("drawerApi", {
   beginWindowDrag: (point) => ipcRenderer.send("window:drag-begin", point),
   moveWindowDrag: (point) => ipcRenderer.send("window:drag-move", point),
   endWindowDrag: () => ipcRenderer.send("window:drag-end"),
+  showDragPreview: (icon, point) =>
+    ipcRenderer.send("drag-preview:show", icon, point),
+  moveDragPreview: (point) => ipcRenderer.send("drag-preview:move", point),
+  hideDragPreview: () => ipcRenderer.send("drag-preview:hide"),
 });

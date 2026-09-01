@@ -38,14 +38,6 @@ function clearInternalDropHighlight() {
   highlightedGap = null;
 }
 
-function positionDragGhost(ghost, event) {
-  ghost.style.transform = `translate3d(${event.clientX - 22}px, ${event.clientY - 22}px, 0)`;
-}
-
-function removeDragGhost(drag) {
-  drag?.ghost?.remove();
-}
-
 function setStatus(message) {
   status.textContent = message;
 }
@@ -267,18 +259,18 @@ document.addEventListener("pointermove", (event) => {
       internalDragIndex = itemPointerDrag.index;
       suppressNextClick = true;
       itemPointerDrag.slot.classList.add("is-dragging");
-      const ghost = document.createElement("img");
-      ghost.className = "drag-ghost";
-      ghost.alt = "";
-      ghost.src = itemPointerDrag.item.icon;
-      document.body.append(ghost);
-      itemPointerDrag.ghost = ghost;
-      positionDragGhost(ghost, event);
+      window.drawerApi.showDragPreview(itemPointerDrag.item.icon, {
+        x: event.screenX,
+        y: event.screenY,
+      });
       setStatus("Drop on a key or gap to move, or outside to remove.");
     }
 
     if (itemPointerDrag.active) {
-      positionDragGhost(itemPointerDrag.ghost, event);
+      window.drawerApi.moveDragPreview({
+        x: event.screenX,
+        y: event.screenY,
+      });
       clearInternalDropHighlight();
       highlightedGap = document
         .elementFromPoint(event.clientX, event.clientY)
@@ -298,7 +290,7 @@ async function endItemPointerDrag(event) {
   const drag = itemPointerDrag;
   itemPointerDrag = null;
   drag.slot.classList.remove("is-dragging");
-  removeDragGhost(drag);
+  window.drawerApi.hideDragPreview();
   clearInternalDropHighlight();
 
   if (!drag.active) return;
@@ -349,11 +341,11 @@ async function endItemPointerDrag(event) {
 function cancelItemPointerDrag(event) {
   if (event.pointerId !== itemPointerDrag?.pointerId) return;
   itemPointerDrag.slot.classList.remove("is-dragging");
-  removeDragGhost(itemPointerDrag);
   itemPointerDrag = null;
   internalDragIndex = null;
   suppressNextClick = false;
   clearInternalDropHighlight();
+  window.drawerApi.hideDragPreview();
 }
 
 function endWindowDrag(event) {
