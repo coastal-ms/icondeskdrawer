@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-01T00:44:00-07:00",
+  "generatedAt": "2026-09-01T01:12:00-07:00",
   "title": "Design System: Icon Desk Drawer",
   "extensions": {
     "colorMeta": {
@@ -86,9 +86,9 @@
     {
       "name": "Icon Drag Preview",
       "kind": "custom",
-      "description": "A full-color icon preview that follows the pointer while rearranging.",
-      "html": "<img class=\"ds-drag-ghost\" alt=\"\">",
-      "css": ".ds-drag-ghost{width:44px;height:44px;object-fit:contain;opacity:.92;filter:drop-shadow(0 5px 6px rgb(0 0 0/.8));pointer-events:none}"
+      "description": "A full-color icon overlay that follows the pointer beyond the drawer boundary.",
+      "html": "<img class=\"drag-preview-icon\" alt=\"\">",
+      "css": ".drag-preview-icon{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 5px 6px rgb(0 0 0/.8))}"
     },
     {
       "name": "Status Label",

@@ -11,6 +11,8 @@ let suppressNextClick = false;
 let windowDragPointer = null;
 let itemPointerDrag = null;
 let highlightedGap = null;
+let windowDragFrame = null;
+let dragPreviewFrame = null;
 
 function itemLabel(item, index) {
   return item
@@ -36,14 +38,6 @@ function clearGapTimer() {
 function clearInternalDropHighlight() {
   highlightedGap?.classList.remove("is-waiting");
   highlightedGap = null;
-}
-
-function positionDragGhost(ghost, event) {
-  ghost.style.transform = `translate3d(${event.clientX - 22}px, ${event.clientY - 22}px, 0)`;
-}
-
-function removeDragGhost(drag) {
-  drag?.ghost?.remove();
 }
 
 function setStatus(message) {
@@ -251,7 +245,7 @@ document.addEventListener("pointerdown", (event) => {
   suppressNextClick = true;
   event.target.setPointerCapture?.(event.pointerId);
   document.body.classList.add("is-moving");
-  window.drawerApi.beginWindowDrag({ x: event.screenX, y: event.screenY });
+  window.drawerApi.beginWindowDrag();
 });
 
 document.addEventListener("pointermove", (event) => {
@@ -267,18 +261,17 @@ document.addEventListener("pointermove", (event) => {
       internalDragIndex = itemPointerDrag.index;
       suppressNextClick = true;
       itemPointerDrag.slot.classList.add("is-dragging");
-      const ghost = document.createElement("img");
-      ghost.className = "drag-ghost";
-      ghost.alt = "";
-      ghost.src = itemPointerDrag.item.icon;
-      document.body.append(ghost);
-      itemPointerDrag.ghost = ghost;
-      positionDragGhost(ghost, event);
+      window.drawerApi.showDragPreview(itemPointerDrag.item.icon);
       setStatus("Drop on a key or gap to move, or outside to remove.");
     }
 
     if (itemPointerDrag.active) {
-      positionDragGhost(itemPointerDrag.ghost, event);
+      if (!dragPreviewFrame) {
+        dragPreviewFrame = window.requestAnimationFrame(() => {
+          dragPreviewFrame = null;
+          window.drawerApi.moveDragPreview();
+        });
+      }
       clearInternalDropHighlight();
       highlightedGap = document
         .elementFromPoint(event.clientX, event.clientY)
@@ -289,7 +282,12 @@ document.addEventListener("pointermove", (event) => {
   }
 
   if (event.pointerId !== windowDragPointer) return;
-  window.drawerApi.moveWindowDrag({ x: event.screenX, y: event.screenY });
+  if (!windowDragFrame) {
+    windowDragFrame = window.requestAnimationFrame(() => {
+      windowDragFrame = null;
+      window.drawerApi.moveWindowDrag();
+    });
+  }
 });
 
 async function endItemPointerDrag(event) {
@@ -298,7 +296,9 @@ async function endItemPointerDrag(event) {
   const drag = itemPointerDrag;
   itemPointerDrag = null;
   drag.slot.classList.remove("is-dragging");
-  removeDragGhost(drag);
+  window.cancelAnimationFrame(dragPreviewFrame);
+  dragPreviewFrame = null;
+  window.drawerApi.hideDragPreview();
   clearInternalDropHighlight();
 
   if (!drag.active) return;
@@ -349,16 +349,21 @@ async function endItemPointerDrag(event) {
 function cancelItemPointerDrag(event) {
   if (event.pointerId !== itemPointerDrag?.pointerId) return;
   itemPointerDrag.slot.classList.remove("is-dragging");
-  removeDragGhost(itemPointerDrag);
   itemPointerDrag = null;
   internalDragIndex = null;
   suppressNextClick = false;
+  window.cancelAnimationFrame(dragPreviewFrame);
+  dragPreviewFrame = null;
   clearInternalDropHighlight();
+  window.drawerApi.hideDragPreview();
 }
 
 function endWindowDrag(event) {
   if (event.pointerId !== windowDragPointer) return;
   windowDragPointer = null;
+  window.cancelAnimationFrame(windowDragFrame);
+  windowDragFrame = null;
+  window.drawerApi.moveWindowDrag();
   document.body.classList.remove("is-moving");
   window.drawerApi.endWindowDrag();
   window.setTimeout(() => {

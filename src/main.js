@@ -16,6 +16,10 @@ const { normalizeState } = require("./drawer-state");
 const execFileAsync = promisify(execFile);
 
 let mainWindow;
+let dragPreviewWindow;
+let dragPreviewBounds;
+let dragPreviewMovePending = false;
+let dragPreviewMoveTimer = null;
 let tray;
 let stateFile;
 let windowStateFile;
@@ -330,6 +334,12 @@ function createWindow(windowState) {
   };
   mainWindow.on("move", scheduleBoundsSave);
   mainWindow.on("resize", scheduleBoundsSave);
+  mainWindow.on("will-resize", (event) => event.preventDefault());
+  mainWindow.on("maximize", () => {
+    mainWindow.unmaximize();
+    fitWindowToSlots(currentSlotCount);
+  });
+  mainWindow.on("hide", () => dragPreviewWindow?.hide());
   mainWindow.on("close", (event) => {
     if (isQuitting) return;
     event.preventDefault();
@@ -349,6 +359,114 @@ function createWindow(windowState) {
       app.quit();
     }
   });
+}
+
+function createDragPreviewWindow() {
+  const displays = screen.getAllDisplays();
+  const left = Math.min(...displays.map(({ bounds }) => bounds.x));
+  const top = Math.min(...displays.map(({ bounds }) => bounds.y));
+  const right = Math.max(
+    ...displays.map(({ bounds }) => bounds.x + bounds.width),
+  );
+  const bottom = Math.max(
+    ...displays.map(({ bounds }) => bounds.y + bounds.height),
+  );
+  dragPreviewBounds = {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+  };
+
+  dragPreviewWindow = new BrowserWindow({
+    ...dragPreviewBounds,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    maximizable: false,
+    fullscreenable: false,
+    focusable: false,
+    skipTaskbar: true,
+    show: false,
+    hasShadow: false,
+    alwaysOnTop: true,
+    enableLargerThanScreen: true,
+    backgroundColor: "#00000000",
+    webPreferences: {
+      preload: path.join(__dirname, "drag-preview-preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  dragPreviewWindow.setIgnoreMouseEvents(true);
+  dragPreviewWindow.setAlwaysOnTop(true, "floating");
+  dragPreviewWindow.loadFile(
+    path.join(__dirname, "renderer", "drag-preview.html"),
+  );
+  dragPreviewWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  dragPreviewWindow.webContents.on("will-navigate", (event) =>
+    event.preventDefault(),
+  );
+}
+
+function positionDragPreview() {
+  const pointer = screen.getCursorScreenPoint();
+  if (
+    !dragPreviewWindow ||
+    dragPreviewWindow.isDestroyed() ||
+    !dragPreviewBounds ||
+    !pointer
+  ) {
+    return;
+  }
+
+  dragPreviewWindow.webContents.send("drag-preview:set-position", {
+    x: Math.round(pointer.x - dragPreviewBounds.x),
+    y: Math.round(pointer.y - dragPreviewBounds.y),
+  });
+}
+
+function queueDragPreviewPosition() {
+  dragPreviewMovePending = true;
+  if (dragPreviewMoveTimer) return;
+
+  dragPreviewMoveTimer = setTimeout(() => {
+    dragPreviewMoveTimer = null;
+    if (!dragPreviewMovePending) return;
+    dragPreviewMovePending = false;
+    positionDragPreview();
+  }, 16);
+}
+
+function hideDragPreview() {
+  clearTimeout(dragPreviewMoveTimer);
+  dragPreviewMoveTimer = null;
+  dragPreviewMovePending = false;
+  dragPreviewWindow?.hide();
+  fitWindowToSlots(currentSlotCount);
+}
+
+async function showDragPreview(icon) {
+  if (
+    typeof icon !== "string" ||
+    !icon.startsWith("data:image/") ||
+    !dragPreviewWindow ||
+    dragPreviewWindow.isDestroyed()
+  ) {
+    return;
+  }
+
+  if (dragPreviewWindow.webContents.isLoading()) {
+    await new Promise((resolve) =>
+      dragPreviewWindow.webContents.once("did-finish-load", resolve),
+    );
+  }
+  fitWindowToSlots(currentSlotCount);
+  dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
+  positionDragPreview();
+  dragPreviewWindow.showInactive();
 }
 
 function showDrawer() {
@@ -439,42 +557,42 @@ function showDrawerContextMenu() {
   ]).popup({ window: mainWindow });
 }
 
-function beginWindowDrag(point) {
+function beginWindowDrag() {
+  const pointer = screen.getCursorScreenPoint();
   if (
     currentLocked ||
     !mainWindow ||
     mainWindow.isDestroyed() ||
-    !Number.isFinite(point?.x) ||
-    !Number.isFinite(point?.y)
+    !pointer
   ) {
     windowDragStart = null;
     return;
   }
 
   windowDragStart = {
-    pointer: point,
+    pointer,
     bounds: mainWindow.getBounds(),
   };
 }
 
-function moveWindowDrag(point) {
+function moveWindowDrag() {
+  const pointer = screen.getCursorScreenPoint();
   if (
     !windowDragStart ||
     currentLocked ||
     !mainWindow ||
     mainWindow.isDestroyed() ||
-    !Number.isFinite(point?.x) ||
-    !Number.isFinite(point?.y)
+    !pointer
   ) {
     return;
   }
 
   mainWindow.setBounds({
     x: Math.round(
-      windowDragStart.bounds.x + point.x - windowDragStart.pointer.x,
+      windowDragStart.bounds.x + pointer.x - windowDragStart.pointer.x,
     ),
     y: Math.round(
-      windowDragStart.bounds.y + point.y - windowDragStart.pointer.y,
+      windowDragStart.bounds.y + pointer.y - windowDragStart.pointer.y,
     ),
     width: windowDragStart.bounds.width,
     height: windowDragStart.bounds.height,
@@ -510,11 +628,20 @@ app.whenReady().then(() => {
     if (message) throw new Error(message);
   });
   ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
-  ipcMain.on("window:drag-begin", (_event, point) => beginWindowDrag(point));
-  ipcMain.on("window:drag-move", (_event, point) => moveWindowDrag(point));
+  ipcMain.on("window:drag-begin", beginWindowDrag);
+  ipcMain.on("window:drag-move", moveWindowDrag);
   ipcMain.on("window:drag-end", () => {
     windowDragStart = null;
     fitWindowToSlots(currentSlotCount);
+  });
+  ipcMain.on("drag-preview:show", (_event, icon) => {
+    showDragPreview(icon);
+  });
+  ipcMain.on("drag-preview:move", () => {
+    queueDragPreviewPosition();
+  });
+  ipcMain.on("drag-preview:hide", () => {
+    hideDragPreview();
   });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
@@ -529,6 +656,7 @@ app.whenReady().then(() => {
       windowState.bounds = undefined;
     }
     createWindow(windowState);
+    createDragPreviewWindow();
     createTray();
   });
 });
