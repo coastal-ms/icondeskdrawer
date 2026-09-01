@@ -391,15 +391,18 @@ function positionDragPreview(point) {
   if (
     !dragPreviewWindow ||
     dragPreviewWindow.isDestroyed() ||
+    !mainWindow ||
+    mainWindow.isDestroyed() ||
     !Number.isFinite(point?.x) ||
     !Number.isFinite(point?.y)
   ) {
     return;
   }
 
+  const drawerBounds = mainWindow.getBounds();
   dragPreviewWindow.setPosition(
-    Math.round(point.x - 26),
-    Math.round(point.y - 26),
+    Math.round(drawerBounds.x + point.x - 26),
+    Math.round(drawerBounds.y + point.y - 26),
   );
 }
 
@@ -513,41 +516,51 @@ function showDrawerContextMenu() {
 }
 
 function beginWindowDrag(point) {
+  const pointer = Number.isFinite(point?.x) && Number.isFinite(point?.y)
+    ? screen.screenToDipPoint({
+        x: Math.round(point.x),
+        y: Math.round(point.y),
+      })
+    : null;
   if (
     currentLocked ||
     !mainWindow ||
     mainWindow.isDestroyed() ||
-    !Number.isFinite(point?.x) ||
-    !Number.isFinite(point?.y)
+    !pointer
   ) {
     windowDragStart = null;
     return;
   }
 
   windowDragStart = {
-    pointer: point,
+    pointer,
     bounds: mainWindow.getBounds(),
   };
 }
 
 function moveWindowDrag(point) {
+  const pointer = Number.isFinite(point?.x) && Number.isFinite(point?.y)
+    ? screen.screenToDipPoint({
+        x: Math.round(point.x),
+        y: Math.round(point.y),
+      })
+    : null;
   if (
     !windowDragStart ||
     currentLocked ||
     !mainWindow ||
     mainWindow.isDestroyed() ||
-    !Number.isFinite(point?.x) ||
-    !Number.isFinite(point?.y)
+    !pointer
   ) {
     return;
   }
 
   mainWindow.setBounds({
     x: Math.round(
-      windowDragStart.bounds.x + point.x - windowDragStart.pointer.x,
+      windowDragStart.bounds.x + pointer.x - windowDragStart.pointer.x,
     ),
     y: Math.round(
-      windowDragStart.bounds.y + point.y - windowDragStart.pointer.y,
+      windowDragStart.bounds.y + pointer.y - windowDragStart.pointer.y,
     ),
     width: windowDragStart.bounds.width,
     height: windowDragStart.bounds.height,

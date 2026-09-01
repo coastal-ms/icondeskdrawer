@@ -260,16 +260,16 @@ document.addEventListener("pointermove", (event) => {
       suppressNextClick = true;
       itemPointerDrag.slot.classList.add("is-dragging");
       window.drawerApi.showDragPreview(itemPointerDrag.item.icon, {
-        x: event.screenX,
-        y: event.screenY,
+        x: event.clientX,
+        y: event.clientY,
       });
       setStatus("Drop on a key or gap to move, or outside to remove.");
     }
 
     if (itemPointerDrag.active) {
       window.drawerApi.moveDragPreview({
-        x: event.screenX,
-        y: event.screenY,
+        x: event.clientX,
+        y: event.clientY,
       });
       clearInternalDropHighlight();
       highlightedGap = document
