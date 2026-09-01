@@ -25,11 +25,13 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let isQuitting = false;
-const WINDOW_LAYOUT_VERSION = 4;
+let windowDragStart = null;
+const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
-const SLOT_STEP = 92;
-const HORIZONTAL_BASE_WIDTH = 302;
-const VERTICAL_BASE_HEIGHT = 322;
+const SLOT_STEP = 78;
+const HORIZONTAL_BASE_WIDTH = 254;
+const HORIZONTAL_HEIGHT = 78;
+const VERTICAL_BASE_HEIGHT = 254;
 
 function validateFilePath(filePath) {
   if (
@@ -118,14 +120,14 @@ async function writeWindowState() {
 
 function applyOrientation(orientation, resize = true) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 96 : 302, vertical ? 322 : 106);
-  mainWindow.setMaximumSize(vertical ? 130 : 10000, vertical ? 10000 : 130);
+  mainWindow.setMinimumSize(vertical ? 72 : 254, vertical ? 254 : HORIZONTAL_HEIGHT);
+  mainWindow.setMaximumSize(vertical ? 72 : 10000, vertical ? 10000 : HORIZONTAL_HEIGHT);
 
   if (resize) {
     const [width, height] = mainWindow.getSize();
     mainWindow.setSize(
-      vertical ? Math.min(104, height) : Math.max(302, height),
-      vertical ? Math.max(322, width) : Math.min(110, width),
+      vertical ? 72 : Math.max(254, height),
+      vertical ? Math.max(254, width) : HORIZONTAL_HEIGHT,
       true,
     );
   }
@@ -148,7 +150,7 @@ function fitWindowToSlots(slotCount) {
       );
   const targetHeight = vertical
     ? Math.min(VERTICAL_BASE_HEIGHT + extraSlots * SLOT_STEP, workArea.height - 24)
-    : bounds.height;
+    : HORIZONTAL_HEIGHT;
   const x = vertical || currentLocked
     ? bounds.x
     : Math.round(bounds.x - (targetWidth - bounds.width) / 2);
@@ -289,17 +291,19 @@ function createWindow(windowState) {
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 104 : 302),
-    height: windowState.bounds?.height || (vertical ? 322 : 110),
+    width: windowState.bounds?.width || (vertical ? 72 : 254),
+    height: windowState.bounds?.height || (vertical ? 254 : HORIZONTAL_HEIGHT),
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 96 : 302,
-    minHeight: vertical ? 322 : 106,
-    maxWidth: vertical ? 130 : undefined,
-    maxHeight: vertical ? undefined : 130,
+    minWidth: vertical ? 72 : 254,
+    minHeight: vertical ? 254 : HORIZONTAL_HEIGHT,
+    maxWidth: vertical ? 72 : undefined,
+    maxHeight: vertical ? undefined : HORIZONTAL_HEIGHT,
     frame: false,
     transparent: true,
     resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     alwaysOnTop: currentAlwaysOnTop,
     movable: !currentLocked,
     skipTaskbar: true,
@@ -429,6 +433,54 @@ function updateTrayMenu() {
   );
 }
 
+function showDrawerContextMenu() {
+  Menu.buildFromTemplate([
+    { label: "Close drawer", click: () => mainWindow?.hide() },
+  ]).popup({ window: mainWindow });
+}
+
+function beginWindowDrag(point) {
+  if (
+    currentLocked ||
+    !mainWindow ||
+    mainWindow.isDestroyed() ||
+    !Number.isFinite(point?.x) ||
+    !Number.isFinite(point?.y)
+  ) {
+    windowDragStart = null;
+    return;
+  }
+
+  windowDragStart = {
+    pointer: point,
+    bounds: mainWindow.getBounds(),
+  };
+}
+
+function moveWindowDrag(point) {
+  if (
+    !windowDragStart ||
+    currentLocked ||
+    !mainWindow ||
+    mainWindow.isDestroyed() ||
+    !Number.isFinite(point?.x) ||
+    !Number.isFinite(point?.y)
+  ) {
+    return;
+  }
+
+  mainWindow.setBounds({
+    x: Math.round(
+      windowDragStart.bounds.x + point.x - windowDragStart.pointer.x,
+    ),
+    y: Math.round(
+      windowDragStart.bounds.y + point.y - windowDragStart.pointer.y,
+    ),
+    width: windowDragStart.bounds.width,
+    height: windowDragStart.bounds.height,
+  });
+}
+
 function createTray() {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "assets", "icon.png")
@@ -457,7 +509,13 @@ app.whenReady().then(() => {
     const message = await shell.openPath(filePath);
     if (message) throw new Error(message);
   });
-  ipcMain.handle("window:close", () => mainWindow?.hide());
+  ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
+  ipcMain.on("window:drag-begin", (_event, point) => beginWindowDrag(point));
+  ipcMain.on("window:drag-move", (_event, point) => moveWindowDrag(point));
+  ipcMain.on("window:drag-end", () => {
+    windowDragStart = null;
+    fitWindowToSlots(currentSlotCount);
+  });
   ipcMain.handle("window:orientation", () => ({
     orientation: currentOrientation,
   }));

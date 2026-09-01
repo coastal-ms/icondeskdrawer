@@ -29,16 +29,17 @@ The drawer lives on the Windows desktop as a compact horizontal utility. Items a
 - Resolves native Windows icons for dropped items.
 - Starts with three empty slots and preserves at least three slots.
 - Adds a slot when a dragged item is held between two existing slots.
-- Occupied keys can be rearranged or dragged outside the drawer to remove them.
+- Occupied keys reorder immediately when dragged onto a key or insertion lane and can be dragged outside the drawer to remove them.
 - The floating window expands and contracts with its key count while preserving its center position.
 - Orientation and always-on-top behavior are controlled from the tray menu, not the drawer window.
 - The tray menu can lock the drawer's desktop position while preserving automatic expansion.
 - Provides tactile press feedback before launching an item.
 - The floating window can be placed anywhere and remembers its position.
 - Users cannot resize the drawer manually; its frame is sized automatically from orientation and key count.
-- A visible control switches the drawer between horizontal and vertical layouts.
+- Moving the drawer cannot maximize, snap-resize, or otherwise change its dimensions.
+- Left-dragging any open surface, including empty keys, key edges, and insertion lanes, moves the drawer without interfering with dropped desktop items.
 - The app lives in the Windows notification tray without a taskbar button.
-- Closing the drawer hides it; the tray icon opens, hides, or explicitly exits the app.
+- Right-clicking empty drawer space can close it; the tray icon opens, hides, or explicitly exits the app.
 - Advanced dock features are intentionally out of scope.
 
 ## Brand Commitments

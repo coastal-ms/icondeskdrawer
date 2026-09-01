@@ -21,21 +21,16 @@ typography:
     fontWeight: 400
     lineHeight: "20px"
 rounded:
-  control: "4px"
   key: "10px"
   shell: "8px"
 spacing:
   key-gap: "14px"
-  edge-space: "4px"
+  edge-space: "0"
 components:
   launcher-key:
     backgroundColor: "{colors.deep-well}"
     rounded: "{rounded.key}"
-    size: "78px"
-  window-control:
-    textColor: "{colors.muted-steel}"
-    rounded: "{rounded.control}"
-    size: "18px"
+    size: "64px"
 ---
 
 # Design System: Icon Desk Drawer
@@ -81,7 +76,7 @@ The palette is restrained graphite with one electrical status color.
 
 ## Layout
 
-The drawer uses a single centered key track. Keys are 78px squares separated by 14px insertion lanes. The shell keeps a 4px content inset, and both end insertion targets use the same 14px width as internal lanes. Horizontal and vertical modes preserve the same key size and centered justification. Overflow scrolls on the active axis.
+The drawer uses a single centered key track. Keys are 64px squares separated by 14px insertion lanes, with matching end targets and no additional content padding. Horizontal and vertical modes preserve the same key size and centered justification.
 
 ## Elevation & Depth
 
@@ -96,13 +91,9 @@ Depth is structural. The shell uses an offset ambient shadow; keys use a hard lo
 
 ## Shapes
 
-The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility controls use 4px. A 2px transparent inset is the only space between the floating window and its housing.
+The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px transparent inset is the only space between the floating window and its housing.
 
 ## Components
-
-### Window Controls
-- **Shape:** Compact 18px controls with a 4px radius.
-- **Hover / Focus:** The hide-to-tray close control brightens and uses a reserved red hover state.
 
 ### Tray Menu
 - **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, and explicit exit.
@@ -110,18 +101,19 @@ The shell uses an 8px radius and 1px bezel, launch keys use 10px, and utility co
 
 ### Drawer Housing
 - **Bezel:** A 1px structural edge inside a 2px transparent window inset.
-- **Rail:** An 18px draggable top strip; status text remains accessible but does not create a bottom bezel.
+- **Movement:** Left-dragging any open surface—including empty keys, occupied-key edges, housing, or insertion lanes—moves the drawer. Only direct icon presses launch or rearrange items.
+- **Chrome:** No title or drag rail. Right-clicking empty housing or an empty key opens the native close menu.
 
 ### Launcher Key
-- **Shape:** Fixed 78px square with a recessed 10px face.
+- **Shape:** Fixed 64px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
-- **Occupied:** The native Windows icon fills 68% of the key.
+- **Occupied:** The native Windows icon fits proportionally within 68% of the key face, matching familiar Windows icon scale without stretching.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.
 
 ### Insertion Key
 
-Insertion lanes remain faintly visible between keys and at both ends. Holding a dragged item in any lane expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
+Insertion lanes remain faintly visible between keys and at both ends. Existing icons reorder immediately when dropped into a lane. Holding an external desktop item in any lane expands a complete empty launcher key over 240ms. The preview uses the same size, shape, plus mark, and depth as permanent keys.
 
 ## Do's and Don'ts
 

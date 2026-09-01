@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-31T23:59:00-07:00",
+  "generatedAt": "2026-09-01T00:10:00-07:00",
   "title": "Design System: Icon Desk Drawer",
   "extensions": {
     "colorMeta": {
@@ -66,7 +66,7 @@
       "refersTo": "launcher-key",
       "description": "The default drop target.",
       "html": "<button class=\"ds-key\" aria-label=\"Empty launcher key\"><span></span></button>",
-      "css": ".ds-key{display:grid;place-items:center;width:78px;height:78px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#91a2ad}.ds-key span::before{content:'+';font:300 36px/1 'Segoe UI',sans-serif}.ds-key:hover{border-color:#58666e}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
+      "css": ".ds-key{display:grid;place-items:center;width:64px;height:64px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#91a2ad}.ds-key span::before{content:'+';font:300 32px/1 'Segoe UI',sans-serif}.ds-key:hover{border-color:#58666e}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
     },
     {
       "name": "Occupied Launcher Key",
@@ -74,22 +74,14 @@
       "refersTo": "launcher-key",
       "description": "A tactile launch control containing native icon art.",
       "html": "<button class=\"ds-key ds-key-filled\" aria-label=\"Launch application\"><span>APP</span></button>",
-      "css": ".ds-key{display:grid;place-items:center;width:78px;height:78px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#eaf3f8;font:700 11px 'Segoe UI',sans-serif}.ds-key:hover{filter:brightness(1.09)}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
+      "css": ".ds-key{display:grid;place-items:center;width:64px;height:64px;border:1px solid #313b41;border-radius:10px;background:#070b0e;box-shadow:0 5px 0 #030405,0 7px 10px rgb(0 0 0/.68);color:#eaf3f8;font:700 11px 'Segoe UI',sans-serif}.ds-key:hover{filter:brightness(1.09)}.ds-key:focus-visible{outline:2px solid #48b8ff;outline-offset:2px}.ds-key:active{transform:translateY(5px) scale(.965);box-shadow:0 1px 0 #020303,0 2px 3px rgb(0 0 0/.65)}"
     },
     {
       "name": "Insertion Key",
       "kind": "custom",
       "description": "A full-size preview that appears after holding in an internal or end gap.",
       "html": "<div class=\"ds-insertion\" aria-label=\"New key ready\">+</div>",
-      "css": ".ds-insertion{display:grid;place-items:center;width:78px;height:78px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 36px/1 'Segoe UI',sans-serif}"
-    },
-    {
-      "name": "Window Control",
-      "kind": "button",
-      "refersTo": "window-control",
-      "description": "Compact title-rail action.",
-      "html": "<button class=\"ds-control\" aria-label=\"Switch orientation\">▭</button>",
-      "css": ".ds-control{display:grid;place-items:center;width:16px;height:15px;padding:0;border:0;border-radius:4px;background:transparent;color:#91a2ad}.ds-control:hover{background:rgb(255 255 255/.1);color:#fff}.ds-control:focus-visible{outline:2px solid #48b8ff;outline-offset:1px}"
+      "css": ".ds-insertion{display:grid;place-items:center;width:64px;height:64px;border:1px solid #48b8ff;border-radius:10px;background:#102533;color:#91a2ad;box-shadow:0 5px 0 #030405,0 0 12px rgb(72 184 255/.28);font:300 32px/1 'Segoe UI',sans-serif}"
     },
     {
       "name": "Status Label",
