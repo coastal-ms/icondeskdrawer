@@ -3,6 +3,7 @@ function createManualUpdater({
   isPackaged,
   onBeforeInstall,
   onBusyChange,
+  onUpdateNotAvailable,
   logger = console,
 }) {
   let busy = false;
@@ -27,7 +28,10 @@ function createManualUpdater({
   autoUpdater.on("update-available", () => {
     autoUpdater.downloadUpdate().catch(handleError);
   });
-  autoUpdater.on("update-not-available", () => setBusy(false));
+  autoUpdater.on("update-not-available", () => {
+    setBusy(false);
+    onUpdateNotAvailable();
+  });
   autoUpdater.on("update-downloaded", () => {
     onBeforeInstall();
     autoUpdater.quitAndInstall(true, true);

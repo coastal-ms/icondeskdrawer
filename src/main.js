@@ -1,6 +1,7 @@
 const {
   app,
   BrowserWindow,
+  dialog,
   ipcMain,
   Menu,
   nativeImage,
@@ -22,6 +23,7 @@ const {
   scalePixels,
 } = require("./drawer-scale");
 const execFileAsync = promisify(execFile);
+const REPOSITORY_URL = "https://github.com/coastal-ms/icondeskdrawer";
 
 let mainWindow;
 let dragPreviewWindow;
@@ -705,7 +707,46 @@ function configureUpdater() {
       isQuitting = true;
     },
     onBusyChange: updateTrayMenu,
+    onUpdateNotAvailable: () => {
+      void showCurrentVersionMessage();
+    },
   });
+}
+
+async function showCurrentVersionMessage() {
+  await showRepositoryMessage({
+    message: "Icon Desk Drawer is up to date.",
+    detail: `Developer: coastal-ms\n${REPOSITORY_URL}`,
+    errorContext: "update confirmation",
+  });
+}
+
+async function showAboutMessage() {
+  await showRepositoryMessage({
+    message: "Icon Desk Drawer",
+    detail: `Version ${app.getVersion()}\nDeveloper: coastal-ms\n${REPOSITORY_URL}`,
+    errorContext: "About window",
+  });
+}
+
+async function showRepositoryMessage({ message, detail, errorContext }) {
+  try {
+    const { response } = await dialog.showMessageBox({
+      type: "info",
+      title: "Icon Desk Drawer",
+      message,
+      detail,
+      buttons: ["OK", "Open repository"],
+      defaultId: 0,
+      cancelId: 0,
+    });
+
+    if (response === 1) {
+      await shell.openExternal(REPOSITORY_URL);
+    }
+  } catch (error) {
+    console.error(`Could not open the ${errorContext}:`, error.message);
+  }
 }
 
 function checkForUpdates() {
@@ -756,6 +797,12 @@ function updateTrayMenu() {
         label: "Check for updates",
         enabled: app.isPackaged && !manualUpdater?.busy,
         click: checkForUpdates,
+      },
+      {
+        label: "About Icon Desk Drawer",
+        click: () => {
+          void showAboutMessage();
+        },
       },
       { type: "separator" },
       {
