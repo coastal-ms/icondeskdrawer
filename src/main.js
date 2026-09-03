@@ -192,9 +192,18 @@ async function describePath(filePath) {
     if (configuredIcon && (await pathExists(configuredIcon))) {
       iconSource = configuredIcon;
       iconIndex = shortcut.iconIndex;
-      useResourceIcon = Number.isInteger(iconIndex) && iconIndex !== 0;
+      const configuredIconIsTarget =
+        path.isAbsolute(target) &&
+        path.normalize(configuredIcon).toLowerCase() ===
+          path.normalize(target).toLowerCase();
+      useResourceIcon =
+        configuredIconIsTarget ||
+        (Number.isInteger(iconIndex) && iconIndex !== 0);
     } else if (target && (await pathExists(target))) {
       iconSource = target;
+      useResourceIcon = true;
+    } else {
+      iconDataUrl = await getPackagedAppIcon(target);
     }
   } else if (parsed.ext.toLowerCase() === ".url") {
     const shortcut = await readInternetShortcut(filePath);
@@ -241,6 +250,53 @@ async function readInternetShortcut(filePath) {
   }
 
   return values;
+}
+
+async function getPackagedAppIcon(applicationId) {
+  if (
+    typeof applicationId !== "string" ||
+    !/^[A-Za-z0-9._-]+![A-Za-z0-9._-]+$/.test(applicationId)
+  ) {
+    return null;
+  }
+
+  const command = [
+    "$parts = $env:ICON_DRAWER_APP_ID.Split('!', 2)",
+    "$package = Get-AppxPackage | Where-Object { $_.PackageFamilyName -eq $parts[0] } | Select-Object -First 1",
+    "if ($null -eq $package) { exit 2 }",
+    "[xml]$manifest = Get-Content (Join-Path $package.InstallLocation 'AppxManifest.xml')",
+    "$application = @($manifest.Package.Applications.Application) | Where-Object { $_.Id -eq $parts[1] } | Select-Object -First 1",
+    "$logo = $application.VisualElements.Square44x44Logo",
+    "if ([string]::IsNullOrWhiteSpace($logo)) { exit 3 }",
+    "$logoPath = Join-Path $package.InstallLocation $logo",
+    "if (-not (Test-Path -LiteralPath $logoPath)) {",
+    "  $directory = Split-Path $logoPath",
+    "  $stem = [IO.Path]::GetFileNameWithoutExtension($logoPath)",
+    "  $logoPath = Get-ChildItem -LiteralPath $directory -Filter \"$stem*.png\" | Where-Object { $_.Name -notmatch 'contrast-' } | Sort-Object @{ Expression = { if ($_.Name -match '\\.scale-400\\.png$') { 0 } else { 1 } } }, Length -Descending | Select-Object -First 1 -ExpandProperty FullName",
+    "}",
+    "if ([string]::IsNullOrWhiteSpace($logoPath)) { exit 4 }",
+    "[Console]::Out.Write($logoPath)",
+  ].join("; ");
+
+  try {
+    const { stdout } = await execFileAsync(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", command],
+      {
+        env: { ...process.env, ICON_DRAWER_APP_ID: applicationId },
+        maxBuffer: 64 * 1024,
+        windowsHide: true,
+      },
+    );
+    const image = nativeImage.createFromPath(stdout.trim());
+    return image.isEmpty() ? null : image.toDataURL();
+  } catch (error) {
+    console.warn(
+      `Could not resolve packaged app icon for ${applicationId}:`,
+      error.message,
+    );
+    return null;
+  }
 }
 
 async function extractWindowsResourceIcon(filePath, iconIndex = 0) {
