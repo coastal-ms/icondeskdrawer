@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self'; script-src 'self'"
+    />
+    <title>Drawer scale</title>
+    <link rel="stylesheet" href="scale.css" />
+  </head>
+  <body>
+    <main class="scale-panel" aria-label="Drawer scale">
+      <header>
+        <label for="scale">Drawer scale</label>
+        <output id="scale-value" for="scale">100%</output>
+      </header>
+      <input
+        id="scale"
+        type="range"
+        min="50"
+        max="125"
+        step="1"
+        value="100"
+        aria-describedby="scale-range"
+      />
+      <p id="scale-range">50% <span>125%</span></p>
+    </main>
+    <script src="scale.js"></script>
+  </body>
+</html>
