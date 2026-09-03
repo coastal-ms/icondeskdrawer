@@ -33,6 +33,7 @@ The drawer lives on the Windows desktop as a compact horizontal utility. Items a
 - Rearranged icons remain visible beneath the pointer beyond the drawer boundary.
 - The floating window expands and contracts with its key count while preserving its center position.
 - Orientation and always-on-top behavior are controlled from the tray menu, not the drawer window.
+- A tray-anchored slider scales the complete drawer from 50% to 125% and remembers the selection.
 - The tray menu can lock the drawer's desktop position while preserving automatic expansion.
 - Provides tactile press feedback before launching an item.
 - The floating window can be placed anywhere and remembers its position.

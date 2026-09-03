@@ -96,8 +96,13 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 ## Components
 
 ### Tray Menu
-- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, and explicit exit.
+- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, scale, and explicit exit.
 - **Placement:** Configuration stays out of the floating drawer so the keybank remains focused on launching.
+
+### Scale Control
+- **Range:** 50% to 125% in 1% increments, with the current percentage always visible.
+- **Placement:** A compact graphite panel opens beside the tray icon and dismisses when focus leaves it.
+- **Behavior:** The complete drawer and detached drag preview scale together in either orientation while the drawer preserves its center position.
 
 ### Drawer Housing
 - **Bezel:** A 1px structural edge inside a 2px transparent window inset.

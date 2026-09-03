@@ -2,10 +2,16 @@ const { ipcRenderer } = require("electron");
 
 window.addEventListener("DOMContentLoaded", () => {
   const icon = document.querySelector("#drag-preview-icon");
-  ipcRenderer.on("drag-preview:set-icon", (_event, source) => {
-    icon.src = source;
+  let iconSize = 44;
+
+  ipcRenderer.on("drag-preview:set-icon", (_event, preview) => {
+    iconSize = preview.size;
+    icon.src = preview.source;
+    icon.style.width = `${iconSize}px`;
+    icon.style.height = `${iconSize}px`;
   });
   ipcRenderer.on("drag-preview:set-position", (_event, point) => {
-    icon.style.transform = `translate3d(${point.x - 22}px, ${point.y - 22}px, 0)`;
+    const offset = iconSize / 2;
+    icon.style.transform = `translate3d(${point.x - offset}px, ${point.y - offset}px, 0)`;
   });
 });

@@ -13,10 +13,17 @@ const path = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { normalizeState } = require("./drawer-state");
+const {
+  DEFAULT_SCALE,
+  drawerSize,
+  normalizeScale,
+  scalePixels,
+} = require("./drawer-scale");
 const execFileAsync = promisify(execFile);
 
 let mainWindow;
 let dragPreviewWindow;
+let scaleWindow;
 let dragPreviewBounds;
 let dragPreviewMovePending = false;
 let dragPreviewMoveTimer = null;
@@ -28,14 +35,11 @@ let currentOrientation = "horizontal";
 let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
+let currentScale = DEFAULT_SCALE;
 let isQuitting = false;
 let windowDragStart = null;
 const WINDOW_LAYOUT_VERSION = 5;
 const MINIMUM_SLOT_COUNT = 3;
-const SLOT_STEP = 78;
-const HORIZONTAL_BASE_WIDTH = 254;
-const HORIZONTAL_HEIGHT = 78;
-const VERTICAL_BASE_HEIGHT = 254;
 
 function validateFilePath(filePath) {
   if (
@@ -86,6 +90,7 @@ async function readWindowState() {
       orientation: value.orientation === "vertical" ? "vertical" : "horizontal",
       alwaysOnTop: value.alwaysOnTop !== false,
       locked: value.locked === true,
+      scale: normalizeScale(value.scale),
       bounds:
         value.layoutVersion === WINDOW_LAYOUT_VERSION &&
         value.bounds &&
@@ -97,7 +102,12 @@ async function readWindowState() {
     };
   } catch (error) {
     if (error.code === "ENOENT") {
-      return { orientation: "horizontal", alwaysOnTop: true, locked: false };
+      return {
+        orientation: "horizontal",
+        alwaysOnTop: true,
+        locked: false,
+        scale: DEFAULT_SCALE,
+      };
     }
     throw error;
   }
@@ -113,6 +123,7 @@ async function writeWindowState() {
         orientation: currentOrientation,
         alwaysOnTop: currentAlwaysOnTop,
         locked: currentLocked,
+        scale: currentScale,
         bounds: mainWindow.getBounds(),
       },
       null,
@@ -122,39 +133,27 @@ async function writeWindowState() {
   );
 }
 
-function applyOrientation(orientation, resize = true) {
+function applyOrientation(orientation) {
   const vertical = orientation === "vertical";
-  mainWindow.setMinimumSize(vertical ? 72 : 254, vertical ? 254 : HORIZONTAL_HEIGHT);
-  mainWindow.setMaximumSize(vertical ? 72 : 10000, vertical ? 10000 : HORIZONTAL_HEIGHT);
-
-  if (resize) {
-    const [width, height] = mainWindow.getSize();
-    mainWindow.setSize(
-      vertical ? 72 : Math.max(254, height),
-      vertical ? Math.max(254, width) : HORIZONTAL_HEIGHT,
-      true,
-    );
-  }
+  const minimum = drawerSize(MINIMUM_SLOT_COUNT, orientation, currentScale);
+  mainWindow.setMinimumSize(minimum.width, minimum.height);
+  mainWindow.setMaximumSize(
+    vertical ? minimum.width : 10000,
+    vertical ? 10000 : minimum.height,
+  );
 }
 
-function fitWindowToSlots(slotCount) {
+function fitWindowToSlots(slotCount, anchorBounds = mainWindow?.getBounds()) {
   if (!mainWindow || mainWindow.isDestroyed()) return;
 
   const count = Math.max(MINIMUM_SLOT_COUNT, Number(slotCount) || 0);
   currentSlotCount = count;
-  const extraSlots = count - MINIMUM_SLOT_COUNT;
-  const bounds = mainWindow.getBounds();
+  const bounds = anchorBounds;
   const workArea = screen.getDisplayMatching(bounds).workArea;
   const vertical = currentOrientation === "vertical";
-  const targetWidth = vertical
-    ? bounds.width
-    : Math.min(
-        HORIZONTAL_BASE_WIDTH + extraSlots * SLOT_STEP,
-        workArea.width - 24,
-      );
-  const targetHeight = vertical
-    ? Math.min(VERTICAL_BASE_HEIGHT + extraSlots * SLOT_STEP, workArea.height - 24)
-    : HORIZONTAL_HEIGHT;
+  const requested = drawerSize(count, currentOrientation, currentScale);
+  const targetWidth = Math.min(requested.width, workArea.width - 24);
+  const targetHeight = Math.min(requested.height, workArea.height - 24);
   const x = vertical || currentLocked
     ? bounds.x
     : Math.round(bounds.x - (targetWidth - bounds.width) / 2);
@@ -294,15 +293,21 @@ function createWindow(windowState) {
   currentOrientation = windowState.orientation;
   currentAlwaysOnTop = windowState.alwaysOnTop;
   currentLocked = windowState.locked;
+  currentScale = windowState.scale;
+  const initialSize = drawerSize(
+    MINIMUM_SLOT_COUNT,
+    currentOrientation,
+    currentScale,
+  );
   mainWindow = new BrowserWindow({
-    width: windowState.bounds?.width || (vertical ? 72 : 254),
-    height: windowState.bounds?.height || (vertical ? 254 : HORIZONTAL_HEIGHT),
+    width: initialSize.width,
+    height: initialSize.height,
     x: windowState.bounds?.x,
     y: windowState.bounds?.y,
-    minWidth: vertical ? 72 : 254,
-    minHeight: vertical ? 254 : HORIZONTAL_HEIGHT,
-    maxWidth: vertical ? 72 : undefined,
-    maxHeight: vertical ? undefined : HORIZONTAL_HEIGHT,
+    minWidth: initialSize.width,
+    minHeight: initialSize.height,
+    maxWidth: vertical ? initialSize.width : undefined,
+    maxHeight: vertical ? undefined : initialSize.height,
     frame: false,
     transparent: true,
     resizable: false,
@@ -322,7 +327,8 @@ function createWindow(windowState) {
   });
 
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
-  applyOrientation(windowState.orientation, false);
+  mainWindow.webContents.setZoomFactor(currentScale);
+  applyOrientation(windowState.orientation);
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   mainWindow.webContents.on("will-navigate", (event) => event.preventDefault());
   const scheduleBoundsSave = () => {
@@ -464,7 +470,10 @@ async function showDragPreview(icon) {
     );
   }
   fitWindowToSlots(currentSlotCount);
-  dragPreviewWindow.webContents.send("drag-preview:set-icon", icon);
+  dragPreviewWindow.webContents.send("drag-preview:set-icon", {
+    source: icon,
+    size: scalePixels(44, currentScale),
+  });
   positionDragPreview();
   dragPreviewWindow.showInactive();
 }
@@ -482,9 +491,10 @@ function toggleDrawer() {
 
 async function setOrientation(orientation) {
   if (orientation === currentOrientation) return;
+  const anchorBounds = mainWindow.getBounds();
   currentOrientation = orientation;
   applyOrientation(orientation);
-  fitWindowToSlots(currentSlotCount);
+  fitWindowToSlots(currentSlotCount, anchorBounds);
   mainWindow.webContents.send("window:orientation-changed", orientation);
   await writeWindowState();
   updateTrayMenu();
@@ -502,6 +512,88 @@ async function setLocked(locked) {
   mainWindow.setMovable(!locked);
   await writeWindowState();
   updateTrayMenu();
+}
+
+function positionScaleWindow() {
+  if (!scaleWindow || scaleWindow.isDestroyed() || !tray) return;
+
+  const trayBounds = tray.getBounds();
+  const display = screen.getDisplayNearestPoint({
+    x: Math.round(trayBounds.x + trayBounds.width / 2),
+    y: Math.round(trayBounds.y + trayBounds.height / 2),
+  });
+  const { workArea } = display;
+  const [width, height] = scaleWindow.getSize();
+  const x = Math.max(
+    workArea.x,
+    Math.min(
+      Math.round(trayBounds.x + trayBounds.width / 2 - width / 2),
+      workArea.x + workArea.width - width,
+    ),
+  );
+  const above = trayBounds.y - height - 8;
+  const y = above >= workArea.y
+    ? above
+    : Math.min(
+        trayBounds.y + trayBounds.height + 8,
+        workArea.y + workArea.height - height,
+      );
+  scaleWindow.setPosition(x, y);
+}
+
+function createScaleWindow() {
+  scaleWindow = new BrowserWindow({
+    width: 260,
+    height: 86,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    skipTaskbar: true,
+    show: false,
+    alwaysOnTop: true,
+    backgroundColor: "#00000000",
+    webPreferences: {
+      preload: path.join(__dirname, "scale-preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  scaleWindow.loadFile(path.join(__dirname, "renderer", "scale.html"));
+  scaleWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  scaleWindow.webContents.on("will-navigate", (event) => event.preventDefault());
+  scaleWindow.on("blur", () => scaleWindow?.hide());
+  scaleWindow.on("close", (event) => {
+    if (isQuitting) return;
+    event.preventDefault();
+    scaleWindow.hide();
+  });
+}
+
+function showScaleWindow() {
+  if (!scaleWindow || scaleWindow.isDestroyed()) createScaleWindow();
+  positionScaleWindow();
+  scaleWindow.webContents.send("scale:changed", Math.round(currentScale * 100));
+  scaleWindow.show();
+  scaleWindow.focus();
+}
+
+function setScale(value) {
+  const nextScale = normalizeScale(value);
+  if (nextScale === currentScale) return currentScale;
+
+  const anchorBounds = mainWindow.getBounds();
+  currentScale = nextScale;
+  mainWindow.webContents.setZoomFactor(currentScale);
+  applyOrientation(currentOrientation);
+  fitWindowToSlots(currentSlotCount, anchorBounds);
+  scaleWindow?.webContents.send("scale:changed", Math.round(currentScale * 100));
+  updateTrayMenu();
+  clearTimeout(saveBoundsTimer);
+  saveBoundsTimer = setTimeout(() => writeWindowState(), 150);
+  return currentScale;
 }
 
 function updateTrayMenu() {
@@ -526,6 +618,10 @@ function updateTrayMenu() {
             click: () => setOrientation("vertical"),
           },
         ],
+      },
+      {
+        label: `Scale: ${Math.round(currentScale * 100)}%…`,
+        click: showScaleWindow,
       },
       {
         label: "Always on top",
@@ -628,6 +724,15 @@ app.whenReady().then(() => {
     if (message) throw new Error(message);
   });
   ipcMain.handle("window:show-context-menu", showDrawerContextMenu);
+  ipcMain.handle("scale:get", () => Math.round(currentScale * 100));
+  ipcMain.handle("scale:set", (_event, percent) => {
+    const numericPercent = Number(percent);
+    if (!Number.isFinite(numericPercent)) {
+      throw new TypeError("Scale must be a number.");
+    }
+    return Math.round(setScale(numericPercent / 100) * 100);
+  });
+  ipcMain.on("scale:close", () => scaleWindow?.hide());
   ipcMain.on("window:drag-begin", beginWindowDrag);
   ipcMain.on("window:drag-move", moveWindowDrag);
   ipcMain.on("window:drag-end", () => {
