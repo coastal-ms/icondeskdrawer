@@ -192,10 +192,9 @@ async function describePath(filePath) {
     if (configuredIcon && (await pathExists(configuredIcon))) {
       iconSource = configuredIcon;
       iconIndex = shortcut.iconIndex;
-      useResourceIcon = true;
+      useResourceIcon = Number.isInteger(iconIndex) && iconIndex !== 0;
     } else if (target && (await pathExists(target))) {
       iconSource = target;
-      useResourceIcon = true;
     }
   } else if (parsed.ext.toLowerCase() === ".url") {
     const shortcut = await readInternetShortcut(filePath);
