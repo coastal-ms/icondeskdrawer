@@ -8,11 +8,13 @@ const {
   shell,
   Tray,
 } = require("electron");
+const { autoUpdater } = require("electron-updater");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { normalizeState } = require("./drawer-state");
+const { createManualUpdater } = require("./manual-updater");
 const {
   DEFAULT_SCALE,
   drawerSize,
@@ -36,6 +38,7 @@ let currentAlwaysOnTop = true;
 let currentLocked = false;
 let currentSlotCount = 3;
 let currentScale = DEFAULT_SCALE;
+let manualUpdater;
 let isQuitting = false;
 let windowDragStart = null;
 const WINDOW_LAYOUT_VERSION = 5;
@@ -694,6 +697,21 @@ function setScale(value) {
   return currentScale;
 }
 
+function configureUpdater() {
+  manualUpdater = createManualUpdater({
+    autoUpdater,
+    isPackaged: app.isPackaged,
+    onBeforeInstall: () => {
+      isQuitting = true;
+    },
+    onBusyChange: updateTrayMenu,
+  });
+}
+
+function checkForUpdates() {
+  manualUpdater?.check();
+}
+
 function updateTrayMenu() {
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -732,6 +750,12 @@ function updateTrayMenu() {
         type: "checkbox",
         checked: currentLocked,
         click: (menuItem) => setLocked(menuItem.checked),
+      },
+      { type: "separator" },
+      {
+        label: "Check for updates",
+        enabled: app.isPackaged && !manualUpdater?.busy,
+        click: checkForUpdates,
       },
       { type: "separator" },
       {
@@ -810,6 +834,7 @@ function createTray() {
 
 app.whenReady().then(() => {
   app.setAppUserModelId("com.coastal.icondeskdrawer");
+  configureUpdater();
   stateFile = path.join(app.getPath("userData"), "drawer.json");
   windowStateFile = path.join(app.getPath("userData"), "window.json");
 

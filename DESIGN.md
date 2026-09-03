@@ -96,7 +96,7 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 ## Components
 
 ### Tray Menu
-- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, scale, and explicit exit.
+- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, scale, manual update checks, and explicit exit.
 - **Placement:** Configuration stays out of the floating drawer so the keybank remains focused on launching.
 
 ### Scale Control
