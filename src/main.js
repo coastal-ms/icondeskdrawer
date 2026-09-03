@@ -180,17 +180,18 @@ async function describePath(filePath) {
   const stats = await fs.stat(filePath);
   const parsed = path.parse(filePath);
   let iconSource = filePath;
+  let iconIndex = 0;
   let useResourceIcon = false;
   let iconDataUrl;
 
   if (parsed.ext.toLowerCase() === ".lnk") {
-    iconDataUrl = await extractWindowsResourceIcon(filePath);
     const shortcut = shell.readShortcutLink(filePath);
     const configuredIcon = expandEnvironmentPath(shortcut.icon);
     const target = expandEnvironmentPath(shortcut.target);
 
     if (configuredIcon && (await pathExists(configuredIcon))) {
       iconSource = configuredIcon;
+      iconIndex = shortcut.iconIndex;
       useResourceIcon = true;
     } else if (target && (await pathExists(target))) {
       iconSource = target;
@@ -210,7 +211,7 @@ async function describePath(filePath) {
     useResourceIcon &&
     path.extname(iconSource).toLowerCase() !== ".ico"
   ) {
-    iconDataUrl = await extractWindowsResourceIcon(iconSource);
+    iconDataUrl = await extractWindowsResourceIcon(iconSource, iconIndex);
   }
 
   if (!iconDataUrl) {
@@ -243,11 +244,18 @@ async function readInternetShortcut(filePath) {
   return values;
 }
 
-async function extractWindowsResourceIcon(filePath) {
+async function extractWindowsResourceIcon(filePath, iconIndex = 0) {
   const command = [
     "Add-Type -AssemblyName System.Drawing",
-    "$icon = [System.Drawing.Icon]::ExtractAssociatedIcon($env:ICON_DRAWER_SOURCE)",
-    "if ($null -eq $icon) { exit 2 }",
+    "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class IconExtractor { [DllImport(\"shell32.dll\", CharSet = CharSet.Unicode)] public static extern uint ExtractIconEx(string file, int index, IntPtr[] large, IntPtr[] small, uint count); [DllImport(\"user32.dll\")] public static extern bool DestroyIcon(IntPtr handle); }'",
+    "$large = New-Object IntPtr[] 1",
+    "$small = New-Object IntPtr[] 1",
+    "$count = [IconExtractor]::ExtractIconEx($env:ICON_DRAWER_SOURCE, [int]$env:ICON_DRAWER_INDEX, $large, $small, 1)",
+    "if ($count -eq 0) { exit 2 }",
+    "$handle = if ($large[0] -ne [IntPtr]::Zero) { $large[0] } else { $small[0] }",
+    "$icon = [System.Drawing.Icon]::FromHandle($handle).Clone()",
+    "if ($large[0] -ne [IntPtr]::Zero) { [IconExtractor]::DestroyIcon($large[0]) | Out-Null }",
+    "if ($small[0] -ne [IntPtr]::Zero) { [IconExtractor]::DestroyIcon($small[0]) | Out-Null }",
     "$bitmap = $icon.ToBitmap()",
     "$stream = New-Object System.IO.MemoryStream",
     "$bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)",
@@ -262,7 +270,11 @@ async function extractWindowsResourceIcon(filePath) {
       "powershell.exe",
       ["-NoProfile", "-NonInteractive", "-Command", command],
       {
-        env: { ...process.env, ICON_DRAWER_SOURCE: filePath },
+        env: {
+          ...process.env,
+          ICON_DRAWER_SOURCE: filePath,
+          ICON_DRAWER_INDEX: String(Number.isInteger(iconIndex) ? iconIndex : 0),
+        },
         maxBuffer: 2 * 1024 * 1024,
         windowsHide: true,
       },
