@@ -187,7 +187,9 @@ async function describePath(filePath) {
   if (parsed.ext.toLowerCase() === ".lnk") {
     const shortcut = shell.readShortcutLink(filePath);
     const configuredIcon = expandEnvironmentPath(shortcut.icon);
-    const target = expandEnvironmentPath(shortcut.target);
+    const target =
+      expandEnvironmentPath(shortcut.target) ||
+      (await getShortcutTargetParsingPath(filePath));
 
     if (configuredIcon && (await pathExists(configuredIcon))) {
       iconSource = configuredIcon;
@@ -250,6 +252,35 @@ async function readInternetShortcut(filePath) {
   }
 
   return values;
+}
+
+async function getShortcutTargetParsingPath(filePath) {
+  const command = [
+    "$shell = New-Object -ComObject Shell.Application",
+    "$folder = $shell.Namespace((Split-Path -LiteralPath $env:ICON_DRAWER_SOURCE))",
+    "$item = $folder.ParseName((Split-Path -Leaf $env:ICON_DRAWER_SOURCE))",
+    "if ($null -eq $item) { exit 2 }",
+    "[Console]::Out.Write($item.ExtendedProperty('System.Link.TargetParsingPath'))",
+  ].join("; ");
+
+  try {
+    const { stdout } = await execFileAsync(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", command],
+      {
+        env: { ...process.env, ICON_DRAWER_SOURCE: filePath },
+        maxBuffer: 64 * 1024,
+        windowsHide: true,
+      },
+    );
+    return stdout.trim();
+  } catch (error) {
+    console.warn(
+      `Could not resolve shortcut target for ${filePath}:`,
+      error.message,
+    );
+    return "";
+  }
 }
 
 async function getPackagedAppIcon(applicationId) {
