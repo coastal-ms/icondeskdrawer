@@ -16,7 +16,7 @@ let dragPreviewFrame = null;
 
 function itemLabel(item, index) {
   return item
-    ? `Launch ${item.name}. Right-click to remove.`
+    ? `Launch ${item.name}. Drag outside the drawer to remove.`
     : `Empty launcher key ${index + 1}. Drop an item here.`;
 }
 
@@ -203,18 +203,12 @@ function createSlot(item, index) {
     }
   });
 
-  slot.addEventListener("contextmenu", async (event) => {
+  slot.addEventListener("contextmenu", (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (!item) {
       window.drawerApi.showContextMenu();
-      return;
     }
-    items[index] = null;
-    compactSlots();
-    await persist();
-    render();
-    setStatus(`${item.name} removed.`);
   });
 
   return slot;
