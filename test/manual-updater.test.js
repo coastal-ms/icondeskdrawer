@@ -21,11 +21,15 @@ function createUpdater() {
 
 test("checks only when explicitly requested in a packaged app", async () => {
   const autoUpdater = createUpdater();
+  let noUpdateMessageCount = 0;
   const controller = createManualUpdater({
     autoUpdater,
     isPackaged: true,
     onBeforeInstall() {},
     onBusyChange() {},
+    onUpdateNotAvailable: () => {
+      noUpdateMessageCount += 1;
+    },
   });
 
   assert.equal(autoUpdater.checkCalls, 0);
@@ -36,6 +40,7 @@ test("checks only when explicitly requested in a packaged app", async () => {
   autoUpdater.emit("update-not-available");
   assert.equal(controller.busy, false);
   assert.equal(autoUpdater.downloadCalls, 0);
+  assert.equal(noUpdateMessageCount, 1);
 });
 
 test("downloads and silently installs an available update", async () => {
@@ -48,6 +53,7 @@ test("downloads and silently installs an available update", async () => {
       beforeInstall = true;
     },
     onBusyChange() {},
+    onUpdateNotAvailable() {},
   });
 
   await controller.check();
@@ -67,6 +73,7 @@ test("does not check for updates in an unpackaged app", async () => {
     isPackaged: false,
     onBeforeInstall() {},
     onBusyChange() {},
+    onUpdateNotAvailable() {},
   });
 
   assert.equal(await controller.check(), false);
