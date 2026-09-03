@@ -1,6 +1,6 @@
 {
   "name": "icon-desk-drawer",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "description": "A lightweight drag-and-drop Windows desktop launcher.",
   "main": "src/main.js",
   "author": "Coastal",
@@ -22,6 +22,7 @@
   "build": {
     "appId": "com.coastal.icondeskdrawer",
     "productName": "Icon Desk Drawer",
+    "artifactName": "IconDeskDrawer-Setup-${version}.${ext}",
     "asar": true,
     "directories": {
       "output": "dist"
@@ -47,11 +48,22 @@
         }
       ]
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "coastal-ms",
+        "repo": "icondeskdrawer",
+        "releaseType": "release"
+      }
+    ],
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }
