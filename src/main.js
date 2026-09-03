@@ -192,9 +192,16 @@ async function describePath(filePath) {
     if (configuredIcon && (await pathExists(configuredIcon))) {
       iconSource = configuredIcon;
       iconIndex = shortcut.iconIndex;
-      useResourceIcon = Number.isInteger(iconIndex) && iconIndex !== 0;
+      const configuredIconIsTarget =
+        path.isAbsolute(target) &&
+        path.normalize(configuredIcon).toLowerCase() ===
+          path.normalize(target).toLowerCase();
+      useResourceIcon =
+        configuredIconIsTarget ||
+        (Number.isInteger(iconIndex) && iconIndex !== 0);
     } else if (target && (await pathExists(target))) {
       iconSource = target;
+      useResourceIcon = true;
     }
   } else if (parsed.ext.toLowerCase() === ".url") {
     const shortcut = await readInternetShortcut(filePath);
