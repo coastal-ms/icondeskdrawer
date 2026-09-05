@@ -617,6 +617,25 @@ async function setLocked(locked) {
   updateTrayMenu();
 }
 
+async function setStartWithWindows(enabled) {
+  try {
+    app.setLoginItemSettings({ openAtLogin: enabled });
+    if (app.getLoginItemSettings().openAtLogin !== enabled) {
+      throw new Error("Windows did not accept the startup setting.");
+    }
+  } catch (error) {
+    await dialog.showMessageBox({
+      type: "error",
+      title: "Icon Desk Drawer",
+      message: "The Windows startup setting could not be changed.",
+      detail: error.message,
+      buttons: ["OK"],
+    });
+  } finally {
+    updateTrayMenu();
+  }
+}
+
 function positionScaleWindow() {
   if (!scaleWindow || scaleWindow.isDestroyed() || !tray) return;
 
@@ -791,6 +810,15 @@ function updateTrayMenu() {
         type: "checkbox",
         checked: currentLocked,
         click: (menuItem) => setLocked(menuItem.checked),
+      },
+      {
+        label: "Start with Windows",
+        type: "checkbox",
+        enabled: app.isPackaged,
+        checked: app.isPackaged && app.getLoginItemSettings().openAtLogin,
+        click: (menuItem) => {
+          void setStartWithWindows(menuItem.checked);
+        },
       },
       { type: "separator" },
       {

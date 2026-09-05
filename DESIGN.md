@@ -96,7 +96,7 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 ## Components
 
 ### Tray Menu
-- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, scale, manual update checks, and explicit exit.
+- **Behavior:** Native Windows menu controls visibility, orientation, persistent always-on-top behavior, scale, Windows startup, manual update checks, and explicit exit.
 - **Placement:** Configuration stays out of the floating drawer so the keybank remains focused on launching.
 
 ### Scale Control
@@ -106,13 +106,14 @@ The shell uses an 8px radius and 1px bezel, while launch keys use 10px. A 2px tr
 
 ### Drawer Housing
 - **Bezel:** A 1px structural edge inside a 2px transparent window inset.
-- **Movement:** Left-dragging any open surface—including empty keys, occupied-key edges, housing, or insertion lanes—moves the drawer. Only direct icon presses launch or rearrange items.
+- **Movement:** Left-dragging empty keys, housing, or insertion lanes moves the drawer. Occupied keys own their full square: release a press to launch, or move while pressed to rearrange.
 - **Chrome:** No title or drag rail. Right-clicking empty housing or an empty key opens the native close menu.
 
 ### Launcher Key
 - **Shape:** Fixed 64px square with a recessed 10px face.
 - **Empty:** A muted plus mark teaches dropping without setup copy.
 - **Occupied:** The native Windows icon fits proportionally within 68% of the key face, matching familiar Windows icon scale without stretching.
+- **Hit area:** The complete occupied key is clickable and draggable, not only the icon artwork.
 - **Rearranging:** A full-color 44px preview moves inside a fixed, click-through desktop overlay while the source key dims. The overlay window itself never follows the pointer.
 - **Hover / Focus:** Brightness and steel border increase; keyboard focus adds an electric-blue ring.
 - **Active:** The face travels 5px down, scales to 96.5%, and compresses its shadow before launch.

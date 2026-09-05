@@ -84,6 +84,16 @@ body.is-moving .drawer-shell {
   cursor: grab;
 }
 
+.slot.has-item,
+.slot.has-item .item-icon {
+  cursor: pointer;
+}
+
+.slot.is-dragging,
+.slot.is-dragging .item-icon {
+  cursor: grabbing;
+}
+
 .key-face {
   position: absolute;
   inset: 3px 0 8px;
@@ -149,7 +159,6 @@ body.is-moving .drawer-shell {
   height: 68%;
   object-fit: contain;
   filter: drop-shadow(0 3px 3px rgb(0 0 0 / 65%));
-  cursor: pointer;
 }
 
 .icon-host {
