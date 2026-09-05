@@ -151,7 +151,7 @@ function createSlot(item, index) {
     slot.querySelector(".icon-host").append(icon);
     slot.classList.add("has-item");
 
-    icon.addEventListener("pointerdown", (event) => {
+    slot.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       itemPointerDrag = {
         pointerId: event.pointerId,
@@ -162,7 +162,7 @@ function createSlot(item, index) {
         startY: event.screenY,
         active: false,
       };
-      icon.setPointerCapture(event.pointerId);
+      slot.setPointerCapture(event.pointerId);
     });
   }
 
@@ -233,7 +233,7 @@ document.querySelector(".drawer-shell").addEventListener("contextmenu", (event) 
 });
 
 document.addEventListener("pointerdown", (event) => {
-  if (event.button !== 0 || event.target.closest(".item-icon")) return;
+  if (event.button !== 0 || event.target.closest(".slot.has-item")) return;
 
   windowDragPointer = event.pointerId;
   suppressNextClick = true;

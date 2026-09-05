@@ -11,10 +11,12 @@ A lightweight Windows desktop launcher inspired by the directness of classic doc
 - Scale the complete drawer from 50% to 125% with the tray slider.
 - Check for and install newer releases from the tray menu, with confirmation when the app is current.
 - View the installed version, developer, and repository from the tray menu.
+- Optionally start Icon Desk Drawer automatically with Windows.
 - Optional always-on-top and lock-in-place behavior.
 - Drag the frameless housing to move it; right-click empty space to close it.
 - Remembers icons, position, orientation, and tray settings.
 - Runs from the Windows notification tray without a taskbar button.
+- Click anywhere on an occupied key to launch it, or move while holding to rearrange it.
 
 ## Development
 
